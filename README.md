@@ -45,7 +45,7 @@ Administrateur : Gestion complète de la plateforme et des utilisateurs.
 # Projet réalisé dans le cadre du développement web 2024-2025.
 
 # Équipe projet 
-Mattéo
-Baptiste
-Francesca
-Aziz
+- Mattéo
+- Baptiste
+- Francesca
+- Aziz
