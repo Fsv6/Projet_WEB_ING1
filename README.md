@@ -1,11 +1,11 @@
-# SmartPlatform - Plateforme Intelligente et Responsive
+# SmartPlatform - Cuisine Intelligente et Responsive
 
 # Description
-SmartPlatform est une plateforme web qui vise à centraliser les informations et les services liés à un bâtiment, une ville ou un établissement intelligent. Elle exploite les objets connectés (IoT) pour améliorer la gestion des ressources, l’accessibilité et l’efficacité énergétique.
+SmartPlatform est une plateforme web qui vise à centraliser les informations et les services liés à uen cuisine intelligente. Elle exploite les objets connectés (IoT) pour améliorer la gestion des ressources, l’accessibilité et l’efficacité énergétique.
 La plateforme est conçue pour être intelligente, performante et responsive, en fournissant une interface utilisateur adaptée aux différents types d’usagers.
 
 # Objectifs du projet
-- Centraliser les services pour une ville, un bâtiment ou un établissement intelligent.
+- Centraliser les services pour une cuisine intelligente.
 - Faciliter l’interaction avec les objets connectés (gestion d’énergie, accès, signalement…).
 - Optimiser l’usage des ressources (eau, électricité, services).
 - Assurer un accès différencié selon le type d’utilisateur (visiteur, simple, complexe, administrateur).
