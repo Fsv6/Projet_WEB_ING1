@@ -81,7 +81,11 @@ export default {
         localStorage.setItem('user', JSON.stringify(response.utilisateur));
         
         setTimeout(() => {
-          this.$router.push('/accueil');
+          if (response.utilisateur.role === 'admin') {
+            this.$router.push('/admin');
+          } else {
+            this.$router.push('/login');
+          }
         }, 1500);
 
       } catch (error) {
