@@ -42,6 +42,10 @@
           Pas encore de compte ? 
           <router-link to="/register" :class="{ 'disabled': loading }">S'inscrire</router-link>
         </p>
+        <p class="register-link">
+            Espace Visiteurs – 
+            <router-link to="/visitors" :class="{ 'disabled': loading }">Y accéder</router-link>
+          </p>
       </form>
     </div>
     <div class="login-image right">

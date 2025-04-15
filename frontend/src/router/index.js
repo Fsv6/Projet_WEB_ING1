@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import AccueilAdmin from '../views/AccueilAdmin.vue'
+import Visitors from '@/views/Visitors.vue'
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/visitors',
+    name: 'VisitorsPage',
+    component: Visitors
   },
   {
     path: '/admin',
