@@ -10,57 +10,32 @@
       <form @submit.prevent="handleRegister" class="register-form">
         <div class="form-group">
           <label for="nom">Nom</label>
-          <input 
-            type="text" 
-            id="nom" 
-            v-model="nom" 
-            required
-            placeholder="Votre nom"
-          >
+          <input type="text" id="nom" v-model="nom" required placeholder="Votre nom">
         </div>
 
         <div class="form-group">
           <label for="prenom">Prénom</label>
-          <input 
-            type="text" 
-            id="prenom" 
-            v-model="prenom" 
-            required
-            placeholder="Votre prénom"
-          >
+          <input type="text" id="prenom" v-model="prenom" required placeholder="Votre prénom">
         </div>
 
         <div class="form-group">
-          <label for="nom_utilisateur">Nom d'utilisateur</label>
-          <input 
-            type="text" 
-            id="nom_utilisateur" 
-            v-model="nom_utilisateur" 
-            required
-            placeholder="Votre nom d'utilisateur"
-          >
+          <label for="login">Nom d'utilisateur</label>
+          <input type="text" id="login" v-model="login" required placeholder="Votre nom d'utilisateur">
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input 
-            type="email" 
-            id="email" 
-            v-model="email" 
-            required
-            placeholder="Votre email"
-          >
+          <input type="email" id="email" v-model="email" required placeholder="Votre email">
         </div>
 
         <div class="form-group">
-          <label for="mot_de_passe">Mot de passe</label>
-          <input 
-            type="password" 
-            id="mot_de_passe" 
-            v-model="mot_de_passe" 
-            required
-            placeholder="Votre mot de passe"
-          >
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" v-model="password" required placeholder="Votre mot de passe">
+        </div>
+
+        <div class="form-group">
+          <label for="codeFamille">Code Famille</label>
+          <input type="text" id="codeFamille" v-model="codeFamille" required placeholder="Ex: DUPONT2024">
         </div>
 
         <button type="submit" :disabled="loading">
@@ -68,7 +43,7 @@
         </button>
 
         <p class="login-link">
-          Déjà inscrit ? 
+          Déjà inscrit ?
           <router-link to="/login">Se connecter</router-link>
         </p>
       </form>
@@ -85,9 +60,10 @@ export default {
     return {
       nom: '',
       prenom: '',
-      nom_utilisateur: '',
+      login: '',
       email: '',
-      mot_de_passe: '',
+      password: '',
+      codeFamille: '',
       loading: false,
       message: null
     };
@@ -98,27 +74,19 @@ export default {
       this.message = null;
 
       try {
-        const response = await authService.register({
+        await authService.register({
           nom: this.nom,
           prenom: this.prenom,
-          nom_utilisateur: this.nom_utilisateur,
+          login: this.login,
           email: this.email,
-          mot_de_passe: this.mot_de_passe
+          password: this.password,
+          codeFamille: this.codeFamille
         });
 
         this.message = {
           type: 'success',
-          text: 'Inscription réussie ! Redirection...'
+          text: 'Inscription réussie ! Vérifiez votre mail pour valider votre compte.'
         };
-
-        // Stockage des informations utilisateur
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.utilisateur));
-
-        // Redirection après un court délai pour montrer le message de succès
-        setTimeout(() => {
-          this.$router.push('/accueil');
-        }, 1500);
 
       } catch (error) {
         this.message = {
@@ -225,4 +193,4 @@ button:disabled {
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
-</style> 
+</style>

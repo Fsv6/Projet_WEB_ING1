@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-image left">
-      <img src="@/assets/kitchen-left.jpg" alt="Cuisine design">
+      <!--<img src="@/assets/kitchen-left.jpg" alt="Cuisine design">-->
     </div>
     <div class="login-card">
       <h2>Bienvenue dans<br>MaCuisineConnectée</h2>
@@ -49,7 +49,7 @@
       </form>
     </div>
     <div class="login-image right">
-      <img src="@/assets/kitchen-right.jpg" alt="Plats cuisinés">
+      <!--<img src="@/assets/kitchen-right.jpg" alt="Plats cuisinés">-->
     </div>
   </div>
 </template>
@@ -70,7 +70,7 @@ export default {
   methods: {
     async handleLogin() {
       if (this.loading) return;
-      
+
       this.loading = true;
       this.message = null;
 
@@ -80,10 +80,10 @@ export default {
           type: 'success',
           text: 'Connexion réussie ! Redirection...'
         };
-        
+
         localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.utilisateur));
-        
+        localStorage.setItem('user', JSON.stringify(response.user));
+
         setTimeout(() => {
           if (response.utilisateur.role === 'admin') {
             this.$router.push('/admin');
@@ -91,11 +91,20 @@ export default {
             this.$router.push('/login');
           }
         }, 1500);
-
       } catch (error) {
+        const status = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+
+        let errorText = 'Email ou mot de passe incorrect';
+        if (status === 403 && serverMessage) {
+          errorText = serverMessage; // compte non validé, etc.
+        } else if (status === 400 || status === 401) {
+          errorText = serverMessage || errorText;
+        }
+
         this.message = {
           type: 'error',
-          text: error.response?.data?.message || 'Email ou mot de passe incorrect'
+          text: errorText
         };
       } finally {
         this.loading = false;
@@ -104,6 +113,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .login-container {

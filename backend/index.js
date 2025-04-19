@@ -34,7 +34,7 @@ app.use(express.json());
 const utilisateurRoutes = require('./routes/utilisateurRoutes');
 const objetConnecteRoutes = require('./routes/objetConnecteRoutes');
 const activiteRoutes = require('./routes/activiteRoutes'); // Ajout des routes pour l'activité
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/auth');
 
 // Middleware pour logger les requêtes (utile pour le débogage)
 app.use((req, res, next) => {

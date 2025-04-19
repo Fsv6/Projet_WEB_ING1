@@ -32,7 +32,13 @@ const routes = [
     path: '/register',
     name: 'RegisterPage',
     component: Register
+  },
+  {
+    path: '/validation',
+    name: 'Validation',
+    component: () => import('@/views/ValidationInscription.vue')
   }
+
 ]
 
 const router = createRouter({
