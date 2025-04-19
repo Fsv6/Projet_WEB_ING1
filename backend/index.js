@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 // Import de la connexion à la base de données
 const sequelize = require('./config/database');
@@ -31,10 +31,11 @@ app.use(cors());
 app.use(express.json());
 
 // Import des routes
-const utilisateurRoutes = require('./routes/utilisateurRoutes');
-const objetConnecteRoutes = require('./routes/objetConnecteRoutes');
-const activiteRoutes = require('./routes/activiteRoutes'); // Ajout des routes pour l'activité
 const authRoutes = require('./routes/authRoutes');
+const utilisateurRoutes = require('./routes/utilisateurRoutes');
+const familleRoutes = require('./routes/familleRoutes');
+const activiteRoutes = require('./routes/activiteRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 // Middleware pour logger les requêtes (utile pour le débogage)
 app.use((req, res, next) => {
@@ -43,10 +44,11 @@ app.use((req, res, next) => {
 });
 
 // Utilisation des routes
-app.use('/api/utilisateurs', utilisateurRoutes); // Préfixe toutes les routes utilisateur par /api/utilisateurs
-app.use('/api/objets', objetConnecteRoutes); // Préfixe toutes les routes objet connecté par /api/objets
-app.use('/api/activites', activiteRoutes); // Préfixe toutes les routes d'activité par /api/activites
 app.use('/api/auth', authRoutes);
+app.use('/api/utilisateurs', utilisateurRoutes);
+app.use('/api/familles', familleRoutes);
+app.use('/api/activites', activiteRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Route de test pour vérifier que l'API fonctionne
 app.get('/', (req, res) => {

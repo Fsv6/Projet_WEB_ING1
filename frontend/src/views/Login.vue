@@ -80,11 +80,14 @@ export default {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.utilisateur));
         
+        // Enregistrer l'activité de connexion
+        await this.enregistrerConnexion(response.utilisateur.id);
+        
         setTimeout(() => {
           if (response.utilisateur.role === 'admin') {
-            this.$router.push('/admin');
+            this.$router.push('/dashboard-with-sidebar');
           } else {
-            this.$router.push('/login');
+            this.$router.push('/accueil');
           }
         }, 1500);
 
@@ -95,6 +98,36 @@ export default {
         };
       } finally {
         this.loading = false;
+      }
+    },
+    async enregistrerConnexion(utilisateurId) {
+      try {
+        const token = localStorage.getItem('token');
+        
+        // Créer une nouvelle activité de type connexion
+        const nouvelleActivite = {
+          utilisateur_id: utilisateurId,
+          type_activite: 'connexion',
+          date_activite: new Date().toISOString(),
+          details: 'Connexion à l\'application',
+          adresse_ip: '' // L'adresse IP pourrait être récupérée côté serveur
+        };
+        
+        // Envoyer la requête pour créer l'activité
+        const response = await fetch('http://localhost:3000/api/activites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(nouvelleActivite)
+        });
+        
+        if (!response.ok) {
+          console.error('Erreur lors de l\'enregistrement de la connexion');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
       }
     }
   }

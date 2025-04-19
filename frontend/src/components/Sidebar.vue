@@ -11,7 +11,7 @@
         class="nav-item"
       >
         <i :class="item.icon"></i>
-        <span>{{ item.label }}</span>
+        <span class="nav-text">{{ item.label }}</span>
       </router-link>
     </nav>
   </div>
@@ -40,56 +40,78 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+/* Styles globaux nécessaires pour la mise en page avec sidebar */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 100vh;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Styles de la sidebar */
 .sidebar {
   position: fixed;
   left: 0;
   top: 0;
-  height: 100vh;
-  width: 250px;
+  bottom: 0;
+  width: 220px;
   background-color: #2c3e50;
-  color: white;
-  padding: 20px;
+  padding: 15px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .sidebar-header {
-  margin-bottom: 30px;
-  padding-bottom: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .sidebar-header h2 {
   margin: 0;
-  font-size: 1.5rem;
-  color: white;
+  font-size: 16px;
+  color: white !important;
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-grow: 1;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 12px 15px;
-  color: white;
+  padding: 8px 12px;
   text-decoration: none;
-  border-radius: 5px;
+  border-radius: 4px;
   transition: all 0.3s ease;
-}
-
-.nav-item:hover {
-  background-color: #34495e;
-  transform: translateX(5px);
+  font-size: 13px;
 }
 
 .nav-item i {
   margin-right: 10px;
   width: 20px;
   text-align: center;
+  color: white !important;
+}
+
+.nav-text {
+  color: white !important;
+}
+
+.nav-item:hover {
+  background-color: #34495e;
+  transform: translateX(5px);
 }
 
 .router-link-active {
@@ -106,12 +128,12 @@ export default {
 
 @media screen and (max-width: 480px) {
   .sidebar {
-    width: 60px;
+    width: 50px;
     padding: 10px;
   }
   
   .sidebar-header h2,
-  .nav-item span {
+  .nav-text {
     display: none;
   }
   
@@ -122,7 +144,7 @@ export default {
   
   .nav-item i {
     margin-right: 0;
-    font-size: 1.2rem;
+    font-size: 14px;
   }
 }
 </style> 

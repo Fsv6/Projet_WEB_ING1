@@ -1,0 +1,985 @@
+/* Force l'application du mode sombre à l'ensemble du document */
+html.dark-mode {
+  --bg-primary: #121318;
+  --bg-secondary: #1a1c23;
+  --text-primary: #e9ecef;
+  --text-secondary: #adb5bd;
+  --border-color: #2d3748;
+  --accent-color: #5c7cff;
+  --accent-hover: #4263eb;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --card-bg: #1a1c23;
+  --card-inner-bg: #1e2028;
+  --sidebar-bg: #0f1117;
+  --sidebar-text: #e9ecef;
+  --header-bg: #1a1c23;
+  --table-header-bg: #242731;
+  --table-stripe-bg: #1e2028;
+  --table-border: #2d3748;
+  --badge-primary-bg: #5c7cff;
+  --badge-primary-text: #e9ecef;
+  --badge-secondary-bg: #242731;
+  --badge-secondary-text: #e9ecef;
+  --input-bg: #242731;
+  --input-text: #e9ecef;
+  --input-border: #2d3748;
+  --modal-bg: #1a1c23;
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --chart-bg: #1a1c23;
+  --donut-center-bg: #1e2028;
+  
+  /* Appliquer directement les couleurs au document */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Styles spécifiques pour le titre du tableau de bord en mode sombre */
+html.dark-mode .dashboard-content h1,
+html.dark-mode .dashboard-header h1 {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Mode clair (par défaut) */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --border-color: #e9ecef;
+  --accent-color: #4263eb;
+  --accent-hover: #3255d9;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --card-bg: #ffffff;
+  --sidebar-bg: #2c3e50;
+  --sidebar-text: #ecf0f1;
+  --header-bg: #f8f9fa;
+  --table-header-bg: #f0f4ff;
+  --table-stripe-bg: #f8f9fa;
+  --table-border: #e9ecef;
+  --badge-primary-bg: #4263eb;
+  --badge-primary-text: white;
+  --badge-secondary-bg: #f0f4ff;
+  --badge-secondary-text: #2c3e50;
+  --input-bg: #ffffff;
+  --input-text: #2c3e50;
+  --input-border: #ced4da;
+  --modal-bg: #ffffff;
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Mode sombre - redondant mais gardé pour compatibilité */
+body.dark-mode {
+  --bg-primary: #1a1c23;
+  --bg-secondary: #242731;
+  --text-primary: #e9ecef;
+  --text-secondary: #adb5bd;
+  --border-color: #2d3748;
+  --accent-color: #5c7cff;
+  --accent-hover: #4263eb;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --card-bg: #242731;
+  --sidebar-bg: #0f1117;
+  --sidebar-text: #e9ecef;
+  --header-bg: #242731;
+  --table-header-bg: #2d3748;
+  --table-stripe-bg: #242731;
+  --table-border: #2d3748;
+  --badge-primary-bg: #5c7cff;
+  --badge-primary-text: #e9ecef;
+  --badge-secondary-bg: #2d3748;
+  --badge-secondary-text: #e9ecef;
+  --input-bg: #2d3748;
+  --input-text: #e9ecef;
+  --input-border: #4a5568;
+  --modal-bg: #1a1c23;
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  
+  /* Appliquer directement les couleurs au body */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Transitions douces */
+* {
+  transition: background-color 0.4s ease, 
+              color 0.4s ease, 
+              border-color 0.4s ease,
+              box-shadow 0.4s ease,
+              transform 0.3s ease;
+}
+
+/* Styles de base */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Navigation latérale */
+.sidebar, nav.sidebar, .admin-sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+}
+
+/* Appliquer de manière forcée le mode sombre à la barre latérale */
+html.dark-mode .sidebar,
+html.dark-mode nav.sidebar,
+html.dark-mode .admin-sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+}
+
+.sidebar a, .sidebar-link, .sidebar .nav-link {
+  color: var(--sidebar-text);
+}
+
+.sidebar a:hover, .sidebar-link:hover, .sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .active, .sidebar-link.active, .sidebar .nav-link.active {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* En-tête et barre de navigation */
+header, .navbar, .header, .app-header {
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Styles forcés pour le mode sombre */
+html.dark-mode header,
+html.dark-mode .navbar,
+html.dark-mode .header,
+html.dark-mode .app-header,
+html.dark-mode .dashboard-content {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Cartes et panneaux */
+.card,
+.panel,
+.settings-panel {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* En-têtes */
+.panel-header, .card-header {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Boutons */
+button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+/* Boutons secondaires */
+button.secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+button.secondary:hover {
+  background-color: var(--border-color);
+}
+
+/* Texte */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+p, span, div {
+  color: var(--text-primary);
+}
+
+.text-secondary, .subtitle, .description {
+  color: var(--text-secondary);
+}
+
+/* Liens */
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* Inputs */
+input, 
+select, 
+textarea {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+input:focus, 
+select:focus, 
+textarea:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+/* Zone de recherche */
+.search-box, .search-bar, input[type="search"] {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+}
+
+/* Tables */
+table {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--table-border);
+}
+
+th, .table-header {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+}
+
+tr:nth-child(even), .table-striped tr:nth-child(even) {
+  background-color: var(--table-stripe-bg);
+}
+
+tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+td, th {
+  border-color: var(--table-border);
+}
+
+/* Badges */
+.badge, .tag, .pill {
+  transition: all 0.3s ease;
+}
+
+.badge-primary, .badge.primary, .badge.success {
+  background-color: var(--badge-primary-bg);
+  color: var(--badge-primary-text);
+}
+
+.badge-secondary, .badge.secondary, .badge.simple {
+  background-color: var(--badge-secondary-bg);
+  color: var(--badge-secondary-text);
+}
+
+/* Modales */
+.modal, .dialog {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.modal-header, .dialog-header {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-overlay, .overlay {
+  background-color: var(--modal-overlay);
+}
+
+/* Styles spécifiques pour UsersView et autres tableaux d'admin */
+.user-table, .family-table, .admin-table {
+  width: 100%;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-collapse: collapse;
+}
+
+.user-table th, .family-table th, .admin-table th {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+  padding: 10px;
+  text-align: left;
+}
+
+.user-table td, .family-table td, .admin-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Taille de police de base */
+[data-font-size="petite"] {
+  --base-font: 14px;
+  --h1-size: 24px;
+  --h2-size: 20px;
+  --h3-size: 18px;
+  --h4-size: 16px;
+  --text-size: 14px;
+  --small-size: 12px;
+}
+
+[data-font-size="moyenne"] {
+  --base-font: 16px;
+  --h1-size: 28px;
+  --h2-size: 24px;
+  --h3-size: 20px;
+  --h4-size: 18px;
+  --text-size: 16px;
+  --small-size: 14px;
+}
+
+[data-font-size="grande"] {
+  --base-font: 18px;
+  --h1-size: 32px;
+  --h2-size: 28px;
+  --h3-size: 24px;
+  --h4-size: 20px;
+  --text-size: 18px;
+  --small-size: 16px;
+}
+
+[data-font-size="tres-grande"] {
+  --base-font: 20px;
+  --h1-size: 36px;
+  --h2-size: 32px;
+  --h3-size: 28px;
+  --h4-size: 24px;
+  --text-size: 20px;
+  --small-size: 18px;
+}
+
+[data-font-size="enorme"] {
+  --base-font: 22px;
+  --h1-size: 40px;
+  --h2-size: 36px;
+  --h3-size: 32px;
+  --h4-size: 28px;
+  --text-size: 22px;
+  --small-size: 20px;
+}
+
+/* Styles globaux */
+body {
+  font-size: var(--base-font);
+}
+
+/* Titres */
+h1 { font-size: var(--h1-size); }
+h2 { font-size: var(--h2-size); }
+h3 { font-size: var(--h3-size); }
+h4 { font-size: var(--h4-size); }
+
+/* Texte normal */
+p, span, div, button, input, select, textarea {
+  font-size: var(--text-size);
+}
+
+/* Petit texte */
+.small, small, .badge {
+  font-size: var(--small-size);
+}
+
+/* Styles pour les bordures */
+.border,
+.border-bottom,
+.border-top {
+  border-color: var(--border-color);
+}
+
+/* Styles forcés pour le contenu du dashboard */
+html.dark-mode .dashboard-content {
+  background-color: var(--bg-primary);
+}
+
+html.dark-mode .card,
+html.dark-mode .panel,
+html.dark-mode .settings-panel,
+html.dark-mode .users-table-wrapper,
+html.dark-mode .families-table-wrapper,
+html.dark-mode .modal,
+html.dark-mode .family-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+html.dark-mode .users-table th,
+html.dark-mode .families-table th,
+html.dark-mode .admin-table th {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+html.dark-mode .users-table td,
+html.dark-mode .families-table td,
+html.dark-mode .admin-table td {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+html.dark-mode .users-table tr:hover,
+html.dark-mode .families-table tr:hover,
+html.dark-mode .admin-table tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+html.dark-mode .header h1,
+html.dark-mode .header p {
+  color: var(--text-primary);
+}
+
+html.dark-mode .search-box input {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border-color: var(--input-border);
+}
+
+html.dark-mode .search-box i {
+  color: var(--text-secondary);
+}
+
+html.dark-mode select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border-color: var(--input-border);
+}
+
+html.dark-mode .action-btn {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+html.dark-mode .action-btn:hover {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+html.dark-mode .action-btn.delete {
+  color: #ff6b6b;
+}
+
+html.dark-mode .action-btn.delete:hover {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+html.dark-mode .family-header {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+html.dark-mode .family-code-section {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+html.dark-mode .family-code .code {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+html.dark-mode .member-item {
+  background-color: var(--bg-secondary);
+}
+
+/* Styles spécifiques pour les cartes statistiques en mode sombre */
+html.dark-mode .stat-card, 
+html.dark-mode .card,
+html.dark-mode .user-table,
+html.dark-mode .families-table {
+  background-color: #1e2028; /* Couleur plus foncée pour les cartes */
+  border: 1px solid #2d3748; /* Bordure subtile */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Ombre plus prononcée */
+}
+
+html.dark-mode .stat-card h2,
+html.dark-mode .stats-container h2 {
+  color: #ffffff; /* Blanc pur pour les titres de statistiques */
+}
+
+html.dark-mode .stats-container {
+  background-color: transparent; /* Fond transparent pour le conteneur */
+}
+
+/* Amélioration des contrastes pour les textes en mode sombre */
+html.dark-mode h1 {
+  color: #ffffff;
+}
+
+html.dark-mode h2, 
+html.dark-mode h3, 
+html.dark-mode h4 {
+  color: #e9ecef;
+}
+
+html.dark-mode p, 
+html.dark-mode .text-secondary {
+  color: #adb5bd;
+}
+
+/* Ajustement des couleurs pour le graphique circulaire */
+html.dark-mode .donut-chart-container,
+html.dark-mode .chart-container {
+  background-color: #1e2028;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #2d3748;
+}
+
+html.dark-mode .chart-legend {
+  color: #e9ecef;
+}
+
+/* Amélioration des icônes en mode sombre */
+html.dark-mode .stat-icon,
+html.dark-mode .fa-users,
+html.dark-mode .fa-home,
+html.dark-mode .fa-tachometer-alt,
+html.dark-mode .fa-sign-out-alt,
+html.dark-mode .summary-icon {
+  color: var(--accent-color);
+  background-color: rgba(92, 124, 255, 0.1);
+}
+
+/* Amélioration du graphique circulaire en mode sombre */
+html.dark-mode .donut-chart-center {
+  background-color: var(--card-inner-bg);
+  color: var(--text-primary);
+}
+
+html.dark-mode .legend-color {
+  border: 1px solid var(--border-color);
+}
+
+/* Amélioration de la section "Familles actives" */
+html.dark-mode .families-actives {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+html.dark-mode .aucune-famille {
+  color: var(--text-secondary);
+}
+
+/* Amélioration des boutons en mode sombre */
+html.dark-mode .voir-familles {
+  background-color: var(--accent-color);
+  border: none;
+  color: white;
+}
+
+html.dark-mode .voir-familles:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Amélioration des animations en mode sombre */
+html.dark-mode .card:hover,
+html.dark-mode .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Ajout d'un léger effet de dégradé pour les fonds en mode sombre */
+html.dark-mode .dashboard-content {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #191c26 100%);
+}
+
+/* Amélioration des contrastes pour les badges en mode sombre */
+html.dark-mode .badge.role-admin {
+  background-color: rgba(92, 124, 255, 0.2);
+  color: #a5bbff;
+  border: 1px solid rgba(92, 124, 255, 0.3);
+}
+
+html.dark-mode .badge.role-simple {
+  background-color: rgba(72, 187, 120, 0.2);
+  color: #9ae6c2;
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+html.dark-mode .badge.role-complexe {
+  background-color: rgba(237, 137, 54, 0.2);
+  color: #fbd38d;
+  border: 1px solid rgba(237, 137, 54, 0.3);
+}
+
+/* Effet de scintillement léger pour les éléments interactifs en mode sombre */
+@keyframes subtle-glow {
+  0% { box-shadow: 0 0 5px rgba(92, 124, 255, 0.1); }
+  50% { box-shadow: 0 0 8px rgba(92, 124, 255, 0.2); }
+  100% { box-shadow: 0 0 5px rgba(92, 124, 255, 0.1); }
+}
+
+html.dark-mode .action-btn:hover,
+html.dark-mode .add-btn:hover,
+html.dark-mode .settings-toggle:hover {
+  animation: subtle-glow 2s infinite;
+}
+
+/* Amélioration visuelle du graphique en mode sombre */
+html.dark-mode .chart-container {
+  background-color: rgba(30, 32, 40, 0.7);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Effet de verre (glassmorphism) pour certains éléments en mode sombre */
+html.dark-mode .stats-container .stat-card {
+  background-color: rgba(30, 32, 40, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(45, 55, 72, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Amélioration de la visibilité des chiffres importants */
+html.dark-mode .stat-card h2,
+html.dark-mode .summary-count {
+  color: white;
+  text-shadow: 0 0 10px rgba(92, 124, 255, 0.3);
+  font-weight: 600;
+}
+
+/* Effet de fondu animé pour le changement de mode */
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+html.dark-mode .dashboard-content {
+  animation: fade-in 0.5s ease-in-out;
+}
+
+/* Harmonisation complète du mode sombre - suppression des fonds blancs */
+html.dark-mode .stat-card,
+html.dark-mode .card,
+html.dark-mode .panel,
+html.dark-mode .user-table,
+html.dark-mode .user-table th,
+html.dark-mode .families-table,
+html.dark-mode .families-table th,
+html.dark-mode .admin-table th,
+html.dark-mode .modal,
+html.dark-mode .modal-body,
+html.dark-mode .modal-header,
+html.dark-mode .chart-container,
+html.dark-mode .donut-chart-center,
+html.dark-mode .donut-chart-container {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Différenciation des fonds internes pour les cartes */
+html.dark-mode .family-header,
+html.dark-mode .family-code-section,
+html.dark-mode .family-code .code,
+html.dark-mode .member-item,
+html.dark-mode .donut-chart-center,
+html.dark-mode .chart-container,
+html.dark-mode .timeline,
+html.dark-mode input,
+html.dark-mode select,
+html.dark-mode textarea {
+  background-color: var(--card-inner-bg);
+}
+
+/* Couleurs pour le graphique circulaire */
+html.dark-mode .donut-chart-center {
+  color: var(--text-primary);
+  background-color: var(--card-inner-bg);
+}
+
+/* Couleurs pour les légendes */
+html.dark-mode .legend-item {
+  color: var(--text-primary);
+}
+
+/* Couleurs pour les selects et options */
+html.dark-mode .period-selector {
+  background-color: var(--card-inner-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+html.dark-mode option {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+/* Améliorer la lisibilité du texte dans les graphiques */
+html.dark-mode .chart-legend,
+html.dark-mode .chart-subtitle,
+html.dark-mode .scale-label {
+  color: var(--text-secondary);
+}
+
+/* Style cohérent pour les boutons dans les modales */
+html.dark-mode .form-actions button {
+  background-color: var(--card-inner-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+html.dark-mode .form-actions button.primary {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+}
+
+/* Ajustement des badges pour qu'ils soient moins éclatants */
+html.dark-mode .badge.role-admin {
+  background-color: rgba(92, 124, 255, 0.15);
+  color: #adc1ff;
+}
+
+html.dark-mode .badge.role-simple {
+  background-color: rgba(72, 187, 120, 0.15);
+  color: #9ae6c2;
+}
+
+html.dark-mode .badge.role-complexe {
+  background-color: rgba(237, 137, 54, 0.15);
+  color: #fbd38d;
+}
+
+/* Assurer que le donut-chart et son contenu soient bien en mode sombre */
+html.dark-mode .donut-chart {
+  background-color: transparent !important;
+}
+
+html.dark-mode .donut-chart-center {
+  background-color: var(--card-inner-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+html.dark-mode .donut-chart-center span {
+  color: white;
+  font-weight: bold;
+}
+
+html.dark-mode .donut-chart-center small {
+  color: var(--text-secondary);
+}
+
+/* Éliminer tous les fonds blancs dans les graphiques */
+html.dark-mode .bar-chart,
+html.dark-mode .bar-chart-container,
+html.dark-mode .bar-chart-labels,
+html.dark-mode .bar-item {
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+/* Assurer que tous les arrière-plans des tableaux et grilles sont sombres */
+html.dark-mode tr,
+html.dark-mode td,
+html.dark-mode th,
+html.dark-mode tbody,
+html.dark-mode thead,
+html.dark-mode table {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+html.dark-mode tr:hover {
+  background-color: var(--card-inner-bg) !important;
+}
+
+/* Régler les problèmes de couleurs dans les cartes statistiques et le centre du dashboard */
+html.dark-mode .stat-content h2,
+html.dark-mode .stat-content p {
+  color: var(--text-primary);
+}
+
+html.dark-mode .stat-icon {
+  background-color: var(--card-inner-bg);
+  color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(92, 124, 255, 0.1);
+}
+
+/* Ajuster les couleurs des sélecteurs sans fond blanc */
+html.dark-mode select,
+html.dark-mode .period-selector,
+html.dark-mode option {
+  background-color: var(--card-inner-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color);
+}
+
+/* Assurer aucun fond blanc dans le centre du donut chart */
+html.dark-mode .donut-chart-container {
+  position: relative;
+}
+
+html.dark-mode .donut-chart-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  border-radius: 50%;
+  background-color: var(--card-inner-bg) !important;
+  color: var(--text-primary);
+  padding: 20px;
+  width: 40%;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* S'assurer que tous les éléments de l'interface aient des fonds conformes en mode sombre */
+html.dark-mode .page-content,
+html.dark-mode .content-section,
+html.dark-mode .content-wrapper,
+html.dark-mode main,
+html.dark-mode .app-main,
+html.dark-mode .donut-chart-center,
+html.dark-mode .families-actives,
+html.dark-mode .empty-card {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Amélioration des barres de l'histogramme en mode sombre */
+html.dark-mode .bar-item {
+  background-color: var(--accent-color) !important; /* Utilise la couleur d'accent pour les barres */
+  opacity: 0.8; /* Léger effet de transparence */
+  box-shadow: 0 0 8px rgba(92, 124, 255, 0.3); /* Léger effet de lueur */
+}
+
+html.dark-mode .bar-item:hover {
+  opacity: 1;
+  box-shadow: 0 0 12px rgba(92, 124, 255, 0.5);
+}
+
+html.dark-mode .bar-chart {
+  padding: 10px 0; /* Ajoute de l'espace autour du graphique */
+}
+
+html.dark-mode .bar-chart-label {
+  color: var(--text-secondary); /* Couleur des étiquettes des jours */
+}
+
+/* Assurer que le conteneur du graphique a un fond sombre */
+html.dark-mode .connexion-stats,
+html.dark-mode .card,
+html.dark-mode .bar-chart-container {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* Améliorer le contraste du texte dans l'histogramme */
+html.dark-mode .bar-tooltip {
+  background-color: var(--card-inner-bg);
+  color: white;
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Assurer que les textes de la sidebar sont visibles en mode clair */
+.sidebar, 
+nav.sidebar, 
+.admin-sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+}
+
+.sidebar a, 
+.sidebar-link, 
+.sidebar .nav-link {
+  color: var(--sidebar-text);
+}
+
+/* Sélecteurs spécifiques pour assurer la visibilité des textes dans la sidebar */
+.dashboard-with-sidebar .sidebar {
+  color: var(--sidebar-text);
+}
+
+.dashboard-with-sidebar .sidebar h3,
+.dashboard-with-sidebar .sidebar .nav-title,
+.dashboard-with-sidebar .sidebar .title {
+  color: var(--sidebar-text);
+}
+
+/* Styles pour chaque élément de navigation dans la sidebar */
+.sidebar .nav-item,
+.sidebar .nav-link,
+.sidebar a {
+  color: var(--sidebar-text);
+}
+
+/* Force les couleurs pour la sidebar quand on revient en mode clair */
+body:not(.dark-mode) .sidebar,
+body:not(.dark-mode) nav.sidebar,
+body:not(.dark-mode) .admin-sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+}
+
+body:not(.dark-mode) .sidebar a {
+  color: white !important;
+}
+
+body:not(.dark-mode) .sidebar i {
+  color: white !important;
+}
+
+body:not(.dark-mode) .sidebar-link,
+body:not(.dark-mode) .sidebar .nav-link,
+body:not(.dark-mode) .sidebar .nav-item {
+  color: var(--sidebar-text);
+}
+
+/* Assurer que les icônes dans la sidebar sont visibles */
+body:not(.dark-mode) .sidebar i,
+body:not(.dark-mode) .sidebar .fa,
+body:not(.dark-mode) .sidebar svg {
+  color: var(--sidebar-text);
+}
+
+/* === CORRECTION : Assurer la visibilité des textes dans la sidebar en mode clair === */
+body:not(.dark-mode) .sidebar,
+body:not(.dark-mode) .sidebar a,
+body:not(.dark-mode) .sidebar .nav-link,
+body:not(.dark-mode) .sidebar .nav-item,
+body:not(.dark-mode) .sidebar .nav-title,
+body:not(.dark-mode) .sidebar h3,
+body:not(.dark-mode) .sidebar .title {
+  color: var(--sidebar-text) !important;
+}
+
+body:not(.dark-mode) .sidebar i,
+body:not(.dark-mode) .sidebar svg,
+body:not(.dark-mode) .sidebar .fa {
+  color: var(--sidebar-text) !important;
+}
