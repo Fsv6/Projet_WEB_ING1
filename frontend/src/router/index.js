@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import AccueilAdmin from '../views/AccueilAdmin.vue'
-import Visitors from '@/views/Visitors.vue'
+import VisitorsView from '@/views/VisitorsView.vue'
 
 const routes = [
   {
@@ -16,8 +16,13 @@ const routes = [
   },
   {
     path: '/visitors',
-    name: 'VisitorsPage',
-    component: Visitors
+    component: VisitorsView,
+    children: [
+      {
+        path: '',
+        redirect: '/explore'
+      }
+    ]
   },
   {
     path: '/admin',
@@ -37,7 +42,55 @@ const routes = [
     path: '/validation',
     name: 'Validation',
     component: () => import('@/views/ValidationInscription.vue')
+  },
+  {
+    path: '/explore',
+    name: 'Explore',
+    component: () => import('@/views/ExploreApp.vue')
+  },
+  {
+    path: '/recettes',
+    name: 'Recettes',
+    component: () => import('@/views/RecettesView.vue')
+  },
+  {
+    path: '/manuels',
+    name: 'Manuels',
+    component: () => import('@/views/ManuelsView.vue')
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('@/views/ExploreApp.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('@/views/ProfileView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/objects/:id',
+    name: 'ObjectDetails',
+    component: () => import('@/views/ObjectDetails.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/level',
+        name: 'LevelView',
+      component: () => import('@/views/LevelView.vue'),
+      meta: { requiresAuth: false }
+  },
+  {
+    path: '/profile/:id',
+    name: 'OtherProfile',
+    component: () => import('@/views/OtherProfiles.vue'),
+    meta: { requiresAuth: true }
   }
+
+
+
 
 ]
 

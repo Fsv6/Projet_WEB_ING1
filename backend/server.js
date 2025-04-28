@@ -1,17 +1,26 @@
 const express = require('express');
-const connectDB = require('./db');
+const connectDB = require('./config/db');
 const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
+const objetsRoutes = require('./routes/objets');
+const recettesRoutes = require('./routes/recettes');
+const userRoutes = require('./routes/users');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'))
 
 connectDB();
 
-app.use('/api', authRoutes);
+app.use('/api/users', userRoutes)
+app.use('/api/auth', authRoutes);
+app.use('/api/objets', objetsRoutes);
+app.use('/api/recettes', recettesRoutes);
+app.use('/api/users', userRoutes);
+
 app.get('/', (req, res) => {
     res.send('API MaCuisineConnectée est en ligne !');
 });

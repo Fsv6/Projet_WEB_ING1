@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const Personne = require('./models/Personne');
-const Famille = require('./models/Famille');
+const Personne = require('../models/Personne');
+const Famille = require('../models/Famille');
 
 async function seed() {
     await mongoose.connect(process.env.MONGO_URI);

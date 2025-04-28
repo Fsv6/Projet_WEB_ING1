@@ -5,11 +5,12 @@ const userSchema = new mongoose.Schema({
   login : { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  photo: { type: String },
+  photo: { type: String, default: null },
   isValidated: { type: Boolean, default: false },
   role: { type: String, enum: ['simple', 'complexe', 'admin'], default: 'simple' },
   niveau: { type: String, enum: ['débutant', 'intermédiaire', 'avancé', 'expert'], default: 'débutant' },
   points: { type: Number, default: 0 }
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);
+

@@ -31,12 +31,12 @@
 
 <script>
 import authService from '../services/authService';
-import AppSidebar from '@/components/Sidebar.vue';
+import AppSideBar from '@/components/SideBar.vue';
 
 export default {
   name: 'AccueilAdminPage',
   components: {
-    AppSidebar
+    AppSidebar: AppSideBar
   },
   data() {
     return {

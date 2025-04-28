@@ -1,3 +1,4 @@
+
 <template>
   <div class="login-container">
     <div class="login-image left">
@@ -43,9 +44,11 @@
           <router-link to="/register" :class="{ 'disabled': loading }">S'inscrire</router-link>
         </p>
         <p class="register-link">
-            Espace Visiteurs – 
-            <router-link to="/visitors" :class="{ 'disabled': loading }">Y accéder</router-link>
-          </p>
+          Espace Visiteurs –
+          <router-link to="/explore" @click.prevent="activerModeVisiteur">Y accéder</router-link>
+
+        </p>
+
       </form>
     </div>
     <div class="login-image right">
@@ -56,6 +59,9 @@
 
 <script>
 import authService from '../services/authService';
+import { useAuthStore } from '../stores/auth'
+import api from "../services/api";
+
 
 export default {
   name: 'LoginPage',
@@ -68,6 +74,14 @@ export default {
     };
   },
   methods: {
+
+    activerModeVisiteur() {
+      const auth = useAuthStore()
+      auth.setAsVisitor()
+      this.$router.push('/explore')
+    },
+
+
     async handleLogin() {
       if (this.loading) return;
 
@@ -76,40 +90,49 @@ export default {
 
       try {
         const response = await authService.login(this.email, this.password);
+        const authStore = useAuthStore(); // 🔥 ICI on initialise Pinia
+
         this.message = {
           type: 'success',
           text: 'Connexion réussie ! Redirection...'
         };
 
+        // Stockage local
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
 
-        setTimeout(() => {
-          if (response.utilisateur.role === 'admin') {
-            this.$router.push('/admin');
-          } else {
-            this.$router.push('/login');
-          }
-        }, 1500);
-      } catch (error) {
-        const status = error.response?.status;
-        const serverMessage = error.response?.data?.message;
+        // 🔐 MàJ du store Pinia (indispensable pour ExploreApp.vue)
+        authStore.setAuth(response.user);
 
-        let errorText = 'Email ou mot de passe incorrect';
-        if (status === 403 && serverMessage) {
-          errorText = serverMessage; // compte non validé, etc.
-        } else if (status === 400 || status === 401) {
-          errorText = serverMessage || errorText;
+        // Ajout de points à la connexion
+        try {
+          await api.post(`/users/${response.user._id}/points`, { amount: 0.25 });
+          authStore.points += 0.25; // met à jour le store local aussi
+          localStorage.setItem('points', authStore.points);
+        } catch (err) {
+          console.warn("Erreur lors de l'ajout de points à la connexion", err);
         }
 
+
+        setTimeout(() => {
+          if (response.user.role === 'admin') {
+            this.$router.push('/admin');
+          } else {
+            this.$router.push('/dashboard');
+          }
+        }, 1500);
+
+      } catch (error) {
+        console.error('Erreur de connexion :', error);
         this.message = {
           type: 'error',
-          text: errorText
+          text: error.response?.data?.message || "Erreur inconnue"
         };
       } finally {
         this.loading = false;
       }
     }
+
   }
 };
 </script>
