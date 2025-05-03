@@ -34,10 +34,15 @@ router.get('/:id', async (req, res) => {
 // 🆕 POST nouvelle recette — nécessite authentification
 router.post('/', authenticate, async (req, res) => {
   try {
+    console.log('DEBUG req.user =', req.user)
     const recetteData = {
-      ...req.body,
-      auteur: req.user.id
-    };
+      titre: req.body.titre,
+      description: req.body.description,
+      objetsUtilises: req.body.objetsUtilises || [],
+      ingredients: req.body.ingredients || [],
+      etapes: req.body.etapes || [],
+      auteur: req.user._id$
+    }
 
     const recette = new Recette(recetteData);
     await recette.save();

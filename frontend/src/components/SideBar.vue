@@ -9,6 +9,11 @@
           <i :class="item.icon"></i> {{ item.label }}
         </router-link>
       </li>
+      <li v-if="role !== 'admin'">
+        <router-link to="/family-members" class="nav-link">
+          <i class="fas fa-users"></i> Membres de ma famille
+        </router-link>
+      </li>
     </ul>
 
     <div class="auth-actions">
@@ -59,12 +64,20 @@ const navItems = computed(() => {
     { path: '/manage/objects', label: 'Gestion Objets', icon: 'fas fa-cogs' }
   ]
 
-  const admin = [
-    { path: '/admin/users', label: 'Gestion Utilisateurs', icon: 'fas fa-users-cog' },
-    { path: '/admin/objects', label: 'Gestion Objets', icon: 'fas fa-cogs' }
-  ]
+  if (role === 'admin') {
+    return [
+      { path: '/admin', label: 'Tableau de bord', icon: 'fas fa-home' },
+      { path: '/admin/users', label: 'Gestion Utilisateurs', icon: 'fas fa-users-cog' },
+      { path: '/admin/families', label: 'Gestion Familles', icon: 'fas fa-users' },
+      { path: '/manage/objects', label: 'Gestion Objets', icon: 'fas fa-cogs' },
+      { path: '/admin/history', label: 'Historique des actions', icon: 'fas fa-history' },
+      { path: '/profile', label: 'Profil', icon: 'fas fa-user' },
+      { path: '/explore', label: 'Explorer', icon: 'fas fa-search' },
+      { path: '/recettes', label: 'Recettes', icon: 'fas fa-utensils' },
+      { path: '/level', label: 'Niveau', icon: 'fas fa-chart-line' }
+    ]
+  }
 
-  if (role === 'admin') return [...common, ...admin]
   if (role === 'complexe') return [...common, ...complexe]
   return common
 })

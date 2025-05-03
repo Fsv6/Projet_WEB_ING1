@@ -7,11 +7,20 @@ const authRoutes = require('./routes/auth');
 const objetsRoutes = require('./routes/objets');
 const recettesRoutes = require('./routes/recettes');
 const userRoutes = require('./routes/users');
+const historyRoutes = require('./routes/history');
+
+
+
+
+
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'))
+app.use('/api/familles', require('./routes/famille'));
+app.use('/api/history', historyRoutes);
 
 connectDB();
 

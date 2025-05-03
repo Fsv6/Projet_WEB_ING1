@@ -70,7 +70,7 @@ const upgradeLevel = async () => {
       <p v-if="isVisiteur" class="notice">
         🔒 Crée un compte pour débloquer la progression, gagner des points et monter en niveau !
       </p>
-      <p>DEBUG: readyForUpgrade = {{ readyForUpgrade }}</p>
+
 
       <button
           :disabled="!readyForUpgrade"

@@ -59,6 +59,7 @@ router.post('/register', async (req, res) => {
         // 🧍‍♂️ Étape 6 : création du compte utilisateur en base
         const newUser = new User({
             personne: personne._id,
+            famille: famille ? famille._id : null,
             email,
             login,
             password: hashedPassword,

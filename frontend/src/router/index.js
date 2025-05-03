@@ -120,6 +120,36 @@ const routes = [
     path: '/recettes/:id/edit',
     name: 'EditRecette',
     component: () => import('@/views/EditRecette.vue')
+  },
+  {
+    path: '/admin/users',
+    name: 'AdminUsers',
+    component: () => import('@/views/AdminUsers.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/history',
+    name: 'AdminHistory',
+    component: () => import('@/views/AdminHistory.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/families',
+    name: 'AdminFamilies',
+    component: () => import('@/views/AdminFamilies.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/user-points',
+    name: 'AdminUserPoints',
+    component: () => import('@/views/AdminUserPoints.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/family-members',
+    name: 'FamilyMembers',
+    component: () => import('@/views/FamilyMembers.vue'),
+    meta: { requiresAuth: true }
   }
 
 

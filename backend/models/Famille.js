@@ -5,7 +5,7 @@ const familleSchema = new mongoose.Schema({
     membres: [
         {
             personne: { type: mongoose.Schema.Types.ObjectId, ref: 'Personne' },
-            typeMembre: { type: String, enum: ['père', 'mère', 'enfant', 'autre'], required: true }
+            typeMembre: { type: String, enum: ['père', 'mère', 'enfant', 'autre'], required: false }
         }
     ]
 });

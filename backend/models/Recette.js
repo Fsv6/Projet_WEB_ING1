@@ -5,7 +5,7 @@ const recette = new mongoose.Schema({
     description: String,
     ingredients: [String],
     etapes: [String],
-    objetsUtilises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ObjetCuisine' }], // 👈 la nouveauté
+    objetsUtilises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ObjetCuisine' }],
     noteMoyenne: { type: Number, default: 0 },
     dateCreation: { type: Date, default: Date.now },
     auteur: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
