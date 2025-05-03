@@ -34,4 +34,9 @@ const authService = {
   }
 };
 
+export const upgradeLevel = async (newLevel) => {
+  return api.post('/users/upgrade', { newLevel });
+};
+
+
 export default authService;

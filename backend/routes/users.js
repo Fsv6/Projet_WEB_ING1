@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth'); // middleware pour vérifier le token
+const { authenticate } = require('../middleware/auth');
 const User = require('../models/user');
 const Personne = require('../models/Personne');
 const userController = require('../controllers/userController');
@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const upload = require('../middleware/upload')
 
 // GET /api/users/me – récupérer son profil
-router.get('/me', auth, async (req, res) => {
+router.get('/me', authenticate, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).populate('personne');
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
@@ -19,7 +19,7 @@ router.get('/me', auth, async (req, res) => {
 });
 
 // PUT /api/users/me – modifier son profil
-router.put('/me', auth, async (req, res) => {
+router.put('/me', authenticate, async (req, res) => {
     try {
         const { login, photo, password, personne } = req.body;
         const user = await User.findById(req.user.id).populate('personne');
@@ -52,22 +52,9 @@ router.put('/me', auth, async (req, res) => {
 
 router.post('/:id/points', userController.addPoints);
 
-// GET /api/users – liste publique des utilisateurs connectés
-router.get('/', auth, async (req, res) => {
-    try {
-        const users = await User.find({}, 'login photo niveau personne')
-            .populate({
-                path: 'personne',
-                select: 'typeMembre genre dateNaissance age'
-            })
 
-        res.json(users)
-    } catch (error) {
-        res.status(500).json({ message: "Erreur serveur", error })
-    }
-})
 // GET /api/users – liste publique (sans données sensibles)
-router.get('/', auth, async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
     try {
         const users = await User.find({}, 'login photo niveau personne')
             .populate({
@@ -82,10 +69,11 @@ router.get('/', auth, async (req, res) => {
 
 
 // Mise à jour de photo (multipart/form-data)
-router.put('/me/photo', auth, upload.single('photo'), userController.updatePhoto)
+router.put('/me/photo', authenticate, upload.single('photo'), userController.updatePhoto)
 
 // Mise à jour du mot de passe
-router.put('/me', auth, userController.updatePassword)
+router.put('/me', authenticate, userController.updatePassword)
 
+router.post('/:id/upgrade', userController.upgradeLevel);
 
 module.exports = router;

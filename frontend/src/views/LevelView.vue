@@ -21,21 +21,35 @@ const currentIndex = computed(() => niveaux.indexOf(currentLevel.value))
 
 const nextLevel = computed(() => niveaux[currentIndex.value + 1])
 const pointsNeeded = computed(() => seuils[nextLevel.value] || null)
-const readyForUpgrade = computed(() => !isVisiteur.value && pointsNeeded.value && currentPoints.value >= pointsNeeded.value)
+const readyForUpgrade = computed(() =>
+    !isVisiteur.value &&
+    nextLevel.value &&
+    pointsNeeded.value &&
+    currentPoints.value >= pointsNeeded.value
+)
 
 const upgradeLevel = async () => {
+  console.log('🟢 Click détecté – tentative de montée de niveau');
+  console.log('auth.userId =', auth.userId);
+
   if (!readyForUpgrade.value || !nextLevel.value) return
   try {
+    console.log(`📤 Envoi POST vers /users/${auth.userId}/upgrade avec niveau = ${nextLevel.value}`);
+
     const res = await api.post(`/users/${auth.userId}/upgrade`, { niveau: nextLevel.value })
+    console.log('✅ Réponse API :', res.data);
+
     auth.niveau = res.data.niveau
+    auth.role = res.data.role
     localStorage.setItem('niveau', res.data.niveau)
+    localStorage.setItem('role', res.data.role)
+
     alert("🎉 Félicitations ! Tu es maintenant " + res.data.niveau)
   } catch (err) {
     alert("Erreur : " + (err.response?.data?.error || 'Impossible de monter de niveau'))
   }
 }
 </script>
-
 
 <template>
   <AppLayout>
@@ -56,9 +70,13 @@ const upgradeLevel = async () => {
       <p v-if="isVisiteur" class="notice">
         🔒 Crée un compte pour débloquer la progression, gagner des points et monter en niveau !
       </p>
+      <p>DEBUG: readyForUpgrade = {{ readyForUpgrade }}</p>
 
-      <button :disabled="!readyForUpgrade || isVisiteur" @click="upgradeLevel" class="btn">
-        Monter au niveau {{ nextLevel }}
+      <button
+          :disabled="!readyForUpgrade"
+          @click="upgradeLevel"
+      >
+        Monter au niveau suivant
       </button>
 
       <div class="levels-info">
@@ -73,11 +91,10 @@ const upgradeLevel = async () => {
           </ul>
         </div>
       </div>
-
-
     </div>
   </AppLayout>
 </template>
+
 
 <style scoped>
 .level-container {

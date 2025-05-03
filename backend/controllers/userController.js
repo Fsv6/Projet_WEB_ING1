@@ -66,5 +66,35 @@ exports.addPoints = async (req, res) => {
         console.error("💥 Erreur serveur :", err.message);
         res.status(500).json({ error: 'Erreur serveur interne.' });
     }
+}
+
+exports.upgradeLevel = async (req, res) => {
+    const userId = req.params.id;
+    const { niveau } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+        console.log(`🔁 Changement demandé : ${user.niveau} ➡️ ${niveau}`);
+
+        user.niveau = niveau;
+
+        // Mise à jour du rôle automatiquement
+        if (niveau === 'avancé') user.role = 'complexe';
+        else if (niveau === 'expert') user.role = 'admin';
+        else user.role = 'simple';
+
+        await user.save();
+
+        console.log('✅ Utilisateur mis à jour :', user.niveau, user.role);
+
+        res.status(200).json({ niveau: user.niveau, role: user.role });
+    } catch (err) {
+        console.error('❌ Erreur serveur upgrade :', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
 };
+
+
 

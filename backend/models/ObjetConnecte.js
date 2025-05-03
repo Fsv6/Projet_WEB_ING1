@@ -5,15 +5,38 @@ const objetCuisineSchema = new mongoose.Schema({
     description: String,
     type: String, // "Four", "Robot", "Plaque", etc.
     marque: String,
+    model: String,
+    mode: String, // "Éco", "Rapide", etc.
     connectivite: String, // "Wi-Fi", "Bluetooth"
     batterie: Number, // pour appareils sans fil
     statut: { type: String, enum: ['Actif', 'Inactif'], default: 'Actif' },
     temperatureActuelle: Number,
-    temperatureCible: Number,
-    mode: String, // Ex : "Grill", "Vapeur"
+    temperatureCible: {
+        type: Number,
+        default: 0
+    },
+
+    modesDisponibles: {
+        type: [String],
+        default: []
+    },
     piece: { type: String, default: "Cuisine" },
     derniereInteraction: Date,
-    manuel: { type: mongoose.Schema.Types.ObjectId, ref: 'Manuel' }
+
+    niveauDanger: {
+        type: String,
+        enum: ['faible', 'élevé'],
+        default: 'élevé'
+    },
+    supporteTemperature: {
+        type: Boolean,
+        default: false
+    },
+    supporteMode: {
+        type: Boolean,
+        default: true
+    }
+
 });
 
-module.exports = mongoose.model('ObjetCuisine', objetCuisineSchema);
+module.exports = mongoose.model('ObjetCuisine', objetCuisineSchema, 'objets');

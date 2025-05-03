@@ -43,7 +43,6 @@ const navItems = computed(() => {
     return [
       { path: '/explore', label: 'Explorer', icon: 'fas fa-search' },
       { path: '/recettes', label: 'Recettes', icon: 'fas fa-utensils' },
-      { path: '/manuels', label: 'Manuels', icon: 'fas fa-book' },
       { path: '/level', label: 'Niveau', icon: 'fas fa-chart-line' }
     ]
   }
@@ -52,12 +51,13 @@ const navItems = computed(() => {
     { path: '/profile', label: 'Profil', icon: 'fas fa-user' },
     { path: '/explore', label: 'Explorer', icon: 'fas fa-search' },
     { path: '/recettes', label: 'Recettes', icon: 'fas fa-utensils' },
-    { path: '/manuels', label: 'Manuels', icon: 'fas fa-book' },
     { path: '/level', label: 'Niveau', icon: 'fas fa-chart-line' },
     { path: '/profile/:id', label: 'Autres Membres', icon: 'fas fa-users' }
-
   ]
 
+  const complexe = [
+    { path: '/manage/objects', label: 'Gestion Objets', icon: 'fas fa-cogs' }
+  ]
 
   const admin = [
     { path: '/admin/users', label: 'Gestion Utilisateurs', icon: 'fas fa-users-cog' },
@@ -65,6 +65,7 @@ const navItems = computed(() => {
   ]
 
   if (role === 'admin') return [...common, ...admin]
+  if (role === 'complexe') return [...common, ...complexe]
   return common
 })
 </script>

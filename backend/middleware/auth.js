@@ -1,6 +1,7 @@
+// middleware/auth.js
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {
+const authenticate = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Accès refusé : token manquant ou invalide' });
@@ -10,9 +11,25 @@ module.exports = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // C’est ce champ "id" qui permet de retrouver l’utilisateur dans les routes privées
+        req.user = decoded; // { id, role, ... }
         next();
     } catch (err) {
         return res.status(403).json({ message: 'Token invalide' });
     }
 };
+
+// ✅ Nouveau middleware : autorisation par rôle
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return res.status(403).json({ message: 'Accès refusé : rôle non autorisé' });
+        }
+        next();
+    };
+};
+
+module.exports = {
+    authenticate,
+    authorizeRoles
+};
+

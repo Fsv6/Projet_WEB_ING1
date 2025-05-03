@@ -54,11 +54,6 @@ const routes = [
     component: () => import('@/views/RecettesView.vue')
   },
   {
-    path: '/manuels',
-    name: 'Manuels',
-    component: () => import('@/views/ManuelsView.vue')
-  },
-  {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/views/ExploreApp.vue'),
@@ -87,8 +82,45 @@ const routes = [
     name: 'OtherProfile',
     component: () => import('@/views/OtherProfiles.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/objects/:id/control',
+    name: 'control-object',
+    component: () => import('@/views/ControlObjectView.vue')
+  },
+  {
+    path: '/manage/objects/new',
+    name: 'create-object',
+    component: () => import('@/views/CreateObjectView.vue'),
+    meta: { requiresRole: ['complexe', 'admin'] }
+  },
+  {
+    path: '/manage/objects',
+    name: 'objects-management',
+    component: () => import('@/views/ObjectsManagementView.vue'),
+    meta: { requiresRole: ['complexe', 'admin'] }
+  },
+  {
+    path: '/manage/objects/:id/edit',
+    name: 'EditObject',
+    component: () => import('@/views/EditObject.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/recettes/new',
+    name: 'NewRecettes',
+    component: () => import('@/views/NewRecettes.vue')
+  },
+  {
+    path: '/recettes/:id',
+    name: 'RecetteDetails',
+    component: () => import('@/views/RecetteDetails.vue')
+  },
+  {
+    path: '/recettes/:id/edit',
+    name: 'EditRecette',
+    component: () => import('@/views/EditRecette.vue')
   }
-
 
 
 

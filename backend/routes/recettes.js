@@ -1,21 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const Recette = require('../models/Recette');
+const { authenticate } = require('../middleware/auth');
+const authorizeRecipeOwnerOrAdmin = require('../middleware/authorizeRecipeOwnerOrAdmin');
 
-// GET all recettes
+// 🔍 GET all recettes (publiques)
 router.get('/', async (req, res) => {
   try {
-    const recettes = await Recette.find().populate('objetsUtilises');
+    const recettes = await Recette.find()
+        .populate('objetsUtilises')
+        .populate('auteur', 'login'); // pour afficher qui a écrit chaque recette
+
     res.json(recettes);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET one recette
+// 🔍 GET one recette
 router.get('/:id', async (req, res) => {
   try {
-    const recette = await Recette.findById(req.params.id).populate('objetsUtilises');
+    const recette = await Recette.findById(req.params.id)
+        .populate('objetsUtilises')
+        .populate('auteur', 'login');
+
     if (!recette) return res.status(404).json({ error: 'Recette non trouvée' });
     res.json(recette);
   } catch (err) {
@@ -23,19 +31,24 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create recette
-router.post('/', async (req, res) => {
+// 🆕 POST nouvelle recette — nécessite authentification
+router.post('/', authenticate, async (req, res) => {
   try {
-    const newRecette = new Recette(req.body);
-    const saved = await newRecette.save();
-    res.status(201).json(saved);
+    const recetteData = {
+      ...req.body,
+      auteur: req.user.id
+    };
+
+    const recette = new Recette(recetteData);
+    await recette.save();
+    res.status(201).json(recette);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// PUT update recette
-router.put('/:id', async (req, res) => {
+// ✏️ PUT mise à jour (auteur uniquement ou admin)
+router.put('/:id', authenticate, authorizeRecipeOwnerOrAdmin, async (req, res) => {
   try {
     const updated = await Recette.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
@@ -44,8 +57,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE recette
-router.delete('/:id', async (req, res) => {
+// 🗑️ DELETE recette (auteur uniquement ou admin)
+router.delete('/:id', authenticate, authorizeRecipeOwnerOrAdmin, async (req, res) => {
   try {
     await Recette.findByIdAndDelete(req.params.id);
     res.json({ message: 'Recette supprimée' });

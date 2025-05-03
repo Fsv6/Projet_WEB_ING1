@@ -3,26 +3,19 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const ObjetConnecte = require('../models/ObjetConnecte'); // nom du modèle MongoDB
-const Manuel = require('../models/Manuel');
 const Recette = require('../models/Recette');
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => console.log('MongoDB connecté'))
-  .catch(err => console.error('Erreur de connexion MongoDB:', err));
+    .catch(err => console.error('Erreur de connexion MongoDB:', err));
 
 async function seed() {
   try {
     await ObjetConnecte.deleteMany();
     await Recette.deleteMany();
-    await Manuel.deleteMany();
 
-    const manuel = await new Manuel({
-      titre: 'Guide du Four Connecté',
-      contenu: 'Ce manuel décrit le fonctionnement complet du four connecté.',
-      fichierPDF: '/pdfs/four-guide.pdf'
-    }).save();
 
     const objets = await ObjetConnecte.insertMany([
       {
@@ -35,9 +28,12 @@ async function seed() {
         statut: 'Actif',
         temperatureActuelle: 180,
         temperatureCible: 200,
-        mode: 'Chaleur tournante',
+        mode: null,
         derniereInteraction: new Date(),
-        manuel: manuel._id
+        niveauDanger: 'élevé',
+        supporteTemperature: true,
+        supporteMode: false,
+        modesDisponibles: null
       },
       {
         nom: 'Plaque à induction',
@@ -49,8 +45,12 @@ async function seed() {
         statut: 'Actif',
         temperatureActuelle: 90,
         temperatureCible: 100,
-        mode: 'Boost',
-        derniereInteraction: new Date()
+        mode: null,
+        derniereInteraction: new Date(),
+        niveauDanger: 'élevé',
+        supporteTemperature: true,
+        supporteMode: false,
+        modesDisponibles: null
       },
       {
         nom: 'Lave-vaisselle connecté',
@@ -61,7 +61,10 @@ async function seed() {
         batterie: null,
         statut: 'Actif',
         mode: 'Éco',
-        derniereInteraction: new Date()
+        supporteMode: true,
+        modesDisponibles: ['Éco', 'Rapide', 'Intensif'],
+        derniereInteraction: new Date(),
+        niveauDanger: 'faible'
       },
       {
         nom: 'Cafetière connectée',
@@ -72,8 +75,12 @@ async function seed() {
         batterie: 65,
         statut: 'Actif',
         mode: 'Espresso',
-        derniereInteraction: new Date()
-      },
+        supporteMode: true,
+        modesDisponibles: ['Espresso', 'Lungo', 'Cappuccino'],
+        derniereInteraction: new Date(),
+        niveauDanger: 'faible'
+      }
+      ,
       {
         nom: 'Hotte intelligente',
         description: 'Aspiration automatique avec détection de fumée',
@@ -83,8 +90,12 @@ async function seed() {
         batterie: null,
         statut: 'Actif',
         mode: 'Auto',
-        derniereInteraction: new Date()
+        supporteMode: true,
+        modesDisponibles: ['Auto', 'Boost', 'Silencieux'],
+        derniereInteraction: new Date(),
+        niveauDanger: 'faible'
       }
+
     ]);
 
     const recette1 = new Recette({

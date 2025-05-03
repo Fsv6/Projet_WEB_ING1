@@ -45,8 +45,22 @@ const handleConsultation = async (id) => {
   }
 }
 
-</script>
+function peutControler(objet) {
+  const niveau = auth.niveau
+  const role = auth.role
+  const danger = objet.niveauDanger // ← champ envoyé par l'API
 
+  if (role === 'admin' || role === 'complexe') return true
+  if (role === 'simple' && niveau === 'intermédiaire' && danger === 'faible') return true
+  return false
+}
+
+
+function controlObject(obj) {
+  router.push(`/objects/${obj._id}/control`);
+}
+
+</script>
 <template>
   <AppLayout>
     <div class="explore-page">
@@ -67,10 +81,16 @@ const handleConsultation = async (id) => {
           <!-- Flouter les infos si visiteur -->
           <div :class="{ 'blur': isVisiteur }">
             <p>{{ obj.description }}</p>
-            <p>État : {{ obj.etat }}</p>
-            <!-- Ajoute ici tout autre champ flouté -->
+            <p>État : {{ obj.statut }}</p>
+            <p>
+              🔒 Niveau de danger :
+              <span :class="['badge', obj.niveauDanger]">
+                {{ obj.niveauDanger }}
+              </span>
+            </p>
           </div>
 
+          <!-- Bouton consulter -->
           <button
               class="btn"
               :disabled="isVisiteur"
@@ -79,18 +99,16 @@ const handleConsultation = async (id) => {
             Consulter infos
           </button>
 
-
           <!-- Bouton contrôler -->
           <button
               class="btn"
-              :disabled="isVisiteur || auth.niveau === 'débutant'"
-              @click="!isVisiteur && auth.niveau !== 'débutant' && controlObject(obj)"
+              :disabled="!peutControler(obj)"
+              :title="!peutControler(obj) ? 'Contrôle non autorisé à ton niveau' : ''"
+              @click="peutControler(obj) && controlObject(obj)"
           >
             Contrôler cet objet
           </button>
         </div>
-
-
       </div>
 
       <div class="daily-recipe-widget">
@@ -115,6 +133,26 @@ const handleConsultation = async (id) => {
 
 
 <style scoped>
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.85em;
+  display: inline-block;
+  margin-left: 6px;
+}
+
+.badge.faible {
+  background-color: #e0f7e9;
+  color: #007b39;
+}
+
+.badge.élevé {
+  background-color: #ffe0e0;
+  color: #b00000;
+}
+
 .explore-page {
   max-width: 1000px;
   margin: 0 auto;

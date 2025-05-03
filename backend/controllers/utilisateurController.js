@@ -74,4 +74,7 @@ exports.deleteUtilisateur = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: 'Erreur lors de la suppression de l\'utilisateur' });
   }
+
+
+
 };
