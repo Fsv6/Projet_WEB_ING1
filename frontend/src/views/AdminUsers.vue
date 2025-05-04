@@ -3,6 +3,11 @@
     <div class="admin-users-container">
       <h1 class="page-title">Gestion des utilisateurs</h1>
 
+      <!-- Message d'erreur pour le chargement des utilisateurs -->
+      <div v-if="errorMessage" class="error-msg">
+        <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+      </div>
+
       <div class="actions-bar">
         <div class="search-box">
           <input
@@ -12,16 +17,26 @@
               class="search-input"
           />
         </div>
-        <button @click="openAddUserModal" class="add-user-btn">
-          Ajouter un utilisateur
-        </button>
       </div>
       <div v-if="deleteMessage" :class="{'success-msg': deleteSuccess, 'error-msg': !deleteSuccess}">
         {{ deleteMessage }}
       </div>
 
-      <div class="users-table">
-        <table>
+      <!-- Indicateur de chargement -->
+      <div v-if="isLoading" class="loading-container">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <p>Chargement des utilisateurs...</p>
+      </div>
+
+      <div v-else-if="users.length === 0" class="no-users">
+        <i class="fas fa-users-slash"></i>
+        <p>Aucun utilisateur trouvé</p>
+      </div>
+
+      <div v-else-if="filteredUsers.length > 0" class="users-table">
+        <table class="users-data-table">
           <thead>
           <tr>
             <th>Photo</th>
@@ -29,20 +44,17 @@
             <th>Prénom</th>
             <th>Famille</th>
             <th>Login</th>
-            <th>Rôle</th>
-            <th>Niveau</th>
-            <th>Points</th>
-            <th>Actions</th>
+            <th>Rôle/Niveau</th>
+            <th>Points & Actions</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="user in filteredUsers" :key="user._id">
             <td>
               <img
-                  :src="user.photo || defaultAvatar"
+                  :src="getPhotoUrl(user.photo, user._id)"
                   :alt="user.login"
                   class="user-avatar"
-                  :class="user-avatar"
                   @error="handleImageError"
               />
             </td>
@@ -51,18 +63,16 @@
             <td>{{ user.famille?.codeFamille || '-' }}</td>
             <td>{{ user.login }}</td>
             <td>
-                <span :class="getRoleBadgeClass(user.role)">
-                  {{ user.role }}
-                </span>
+              <span :class="getRoleBadgeClass(user.role)">
+                {{ user.role }}
+              </span>
+              <span class="niveau-badge">/{{ user.niveau }}</span>
             </td>
-            <td>{{ user.niveau }}</td>
-            <td class="points-cell">
+            <td class="points-actions-cell">
               <span class="points-badge">{{ user.points || 0 }}</span>
               <button @click="adjustPoints(user)" class="points-adjust-btn" title="Ajuster les points">
                 <i class="fas fa-plus-circle"></i>
               </button>
-            </td>
-            <td class="actions-cell">
               <button @click="editUser(user)" class="action-btn edit" title="Modifier">
                 <i class="fas fa-edit"></i>
                 <span class="tooltip">Modifier</span>
@@ -71,19 +81,25 @@
                 <i class="fas fa-trash"></i>
                 <span class="tooltip">Supprimer</span>
               </button>
-              <button @click="showHistory(user)" class="btn btn-history">
-                <i class="fas fa-history"></i> Voir historique
+              <button @click="showHistory(user)" class="action-btn history" title="Voir historique">
+                <i class="fas fa-history"></i>
               </button>
             </td>
           </tr>
           </tbody>
         </table>
       </div>
+
+      <div v-else class="no-results">
+        <i class="fas fa-search"></i>
+        <p>Aucun résultat ne correspond à votre recherche</p>
+      </div>
+
     </div>
 
     <!-- Modal pour éditer/ajouter un utilisateur -->
     <div v-if="showModal" class="modal">
-      <div class="modal-content">
+      <div class="modal-content user-modal-content">
         <h2>{{ editingUser ? 'Modifier' : 'Ajouter' }} un utilisateur</h2>
         <form @submit.prevent="saveUser">
           <div class="form-row">
@@ -95,24 +111,8 @@
             <input v-model="form.prenom" type="text" required />
           </div>
           <div class="form-row">
-            <label>Genre :</label>
-            <select v-model="form.genre" required>
-              <option value="Homme">Homme</option>
-              <option value="Femme">Femme</option>
-              <option value="Non spécifié">Non spécifié</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label>Famille :</label>
-            <select v-model="form.codeFamille" required>
-              <option value="">Sélectionner une famille</option>
-              <option v-for="famille in familles" :key="famille._id" :value="famille.codeFamille">
-                {{ famille.codeFamille }}
-              </option>
-            </select>
-            <button type="button" @click="openAddFamilleModal" class="add-famille-btn">
-              <i class="fas fa-plus"></i> Nouvelle famille
-            </button>
+            <label>Email :</label>
+            <input v-model="form.email" type="email" required :readonly="editingUser" :style="editingUser ? 'background:#f3f3f3;cursor:not-allowed;' : ''" />
           </div>
           <div class="form-row">
             <label>Login :</label>
@@ -122,7 +122,17 @@
             <label>Rôle :</label>
             <select v-model="form.role" required>
               <option value="simple">Simple</option>
+              <option value="complexe">Complexe</option>
               <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Genre :</label>
+            <select v-model="form.genre" required>
+              <option value="Homme">Homme</option>
+              <option value="Femme">Femme</option>
+              <option value="Autres">Autres</option>
+              <option value="Non spécifié">Non spécifié</option>
             </select>
           </div>
           <div class="form-row" v-if="!editingUser">
@@ -231,12 +241,9 @@
 
     <!-- Modal pour ajuster les points -->
     <div v-if="showPointsAdjustModal" class="modal">
-      <div class="modal-content">
+      <div class="modal-content points-adjust-modal">
         <div class="modal-header">
-          <h2>Ajuster les points - {{ selectedUser?.login }}</h2>
-          <button class="close-btn" @click="closePointsAdjustModal">
-            <i class="fas fa-times"></i>
-          </button>
+          <h2>Ajuster les points - {{ selectedUser?.login }} <button class="close-btn" @click="closePointsAdjustModal">×</button></h2>
         </div>
         <div class="modal-body">
           <div class="points-info">
@@ -248,19 +255,19 @@
             <div class="form-row">
               <label>Montant des points:</label>
               <input
-                  type="number"
-                  v-model="pointsForm.amount"
-                  step="0.5"
-                  placeholder="Entrez un nombre positif ou négatif"
-                  required
+                type="number"
+                v-model="pointsForm.amount"
+                step="0.5"
+                placeholder="Entrez un nombre positif ou négatif"
+                required
               />
             </div>
             <div class="form-row">
               <label>Raison:</label>
               <input
-                  type="text"
-                  v-model="pointsForm.reason"
-                  placeholder="Ex: Participation à un événement"
+                type="text"
+                v-model="pointsForm.reason"
+                :placeholder="selectedUser?.prenom ? `${selectedUser.prenom} a été sage aujourd'hui !` : 'Ajustement de points'"
               />
             </div>
             <div class="modal-actions">
@@ -271,6 +278,7 @@
               <button type="button" @click="closePointsAdjustModal" class="cancel-btn">Annuler</button>
             </div>
           </form>
+          <div v-if="pointsErrorMessage" class="error-msg">{{ pointsErrorMessage }}</div>
         </div>
       </div>
     </div>
@@ -348,6 +356,7 @@ import { ref, onMounted, computed } from 'vue';
 import AppLayout from '@/layout/AppLayoutGlobal.vue';
 import api from '@/services/api';
 import defaultAvatar from '@/assets/default-avatar.png';
+import { getPhotoUrl } from '@/utils/photo';
 import UserHistoryModal from '@/components/UserHistoryModal.vue';
 
 export default {
@@ -366,8 +375,8 @@ export default {
     const form = ref({
       nom: '',
       prenom: '',
-      genre: 'Non spécifié',
-      codeFamille: '',
+      email: '',
+      genre: 'Homme',
       login: '',
       password: '',
       role: 'simple',
@@ -383,6 +392,8 @@ export default {
     const showHistoryModal = ref(false);
     const selectedUser = ref(null);
     const loading = ref(false);
+    const isLoading = ref(false);
+    const errorMessage = ref('');
 
     // Nouvelles variables pour la gestion des points
     const showPointsHistoryModal = ref(false);
@@ -404,6 +415,8 @@ export default {
       roleApres: ''
     });
 
+    const pointsErrorMessage = ref('');
+
     const loadFamilles = async () => {
       try {
         const response = await api.get('/familles');
@@ -415,21 +428,55 @@ export default {
 
     const loadUsers = async () => {
       try {
+        isLoading.value = true;
+        errorMessage.value = '';
+        
         const response = await api.get('/users');
-        users.value = response.data.map(user => ({
-          _id: user._id,
-          nom: user.personne?.nom || '-',
-          prenom: user.personne?.prenom || '-',
-          login: user.login || '-',
-          role: user.role || 'simple',
-          niveau: user.niveau || 'débutant',
-          photo: user.photo || null,
-          points: user.points || 0,
-          genre: user.personne?.genre || 'Non spécifié',
-          famille: user.famille
-        }));
+        console.log('Données brutes des utilisateurs:', response.data);
+        
+        // Fonction pour analyser la structure d'un utilisateur
+        const analyzeUserStructure = (user) => {
+          const hasPersonne = !!user.personne;
+          const hasDirectProps = !!(user.nom || user.prenom);
+          const personneStructure = hasPersonne ? Object.keys(user.personne).join(', ') : 'absent';
+          
+          console.log(`Utilisateur ${user._id || 'sans ID'}: ` +
+            `Objet personne: ${hasPersonne ? 'présent' : 'absent'}, ` +
+            `Props directes: ${hasDirectProps ? 'présentes' : 'absentes'}, ` +
+            `Structure personne: ${personneStructure}, ` +
+            `Rôle: ${user.role || 'non défini'}`);
+        };
+        
+        // Analyser la structure de chaque utilisateur
+        if (response.data && response.data.length > 0) {
+          console.log('--- Analyse de la structure des utilisateurs ---');
+          response.data.forEach(analyzeUserStructure);
+          console.log('-----------------------------------------------');
+        }
+        
+        users.value = response.data.map(user => {
+          // Vérification détaillée des données
+          console.log('Structure utilisateur:', user);
+          
+          return {
+            _id: user._id,
+            nom: user.personne?.nom || user.nom || 'Non défini',
+            prenom: user.personne?.prenom || user.prenom || 'Non défini',
+            login: user.login || 'Non défini',
+            role: user.role || 'simple',
+            niveau: user.niveau || 'débutant',
+            photo: user.photo || null,
+            points: user.points || 0,
+            genre: user.personne?.genre || user.genre || 'Non spécifié',
+            famille: user.famille
+          };
+        });
+        console.log('Utilisateurs chargés et transformés:', users.value);
       } catch (error) {
         console.error('Erreur lors du chargement des utilisateurs:', error);
+        errorMessage.value = "Erreur lors du chargement des utilisateurs. Veuillez rafraîchir la page.";
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -448,45 +495,29 @@ export default {
       event.target.src = defaultAvatar;
     };
 
+    const getRoleBadgeClass = (role) => {
+      return `role-badge role-${role}`;
+    };
+
     const editUser = (user) => {
       editingUser.value = user;
       form.value = {
-        nom: user.nom,
-        prenom: user.prenom,
-        codeFamille: user.famille?.codeFamille || '',
+        nom: user.nom || '',
+        prenom: user.prenom || '',
+        email: user.email || '',
+        genre: (user.genre === 'Homme' || user.genre === 'Femme' || user.genre === 'Autres') ? user.genre : 'Homme',
         login: user.login,
         role: user.role,
         niveau: user.niveau,
-        genre: user.genre || 'Non spécifié',
         password: ''
       };
       formMessage.value = '';
       showModal.value = true;
     };
 
-    const openAddUserModal = () => {
+    const closeModal = () => {
+      showModal.value = false;
       editingUser.value = null;
-      showModal.value = true;
-      form.value = {
-        nom: '',
-        prenom: '',
-        genre: 'Non spécifié',
-        codeFamille: '',
-        login: '',
-        password: '',
-        role: 'simple',
-        niveau: 'débutant'
-      };
-      formMessage.value = '';
-    };
-
-    const openAddFamilleModal = () => {
-      showFamilleModal.value = true;
-      familleForm.value = {
-        codeFamille: '',
-        nom: '',
-        description: ''
-      };
     };
 
     const closeFamilleModal = () => {
@@ -505,11 +536,6 @@ export default {
 
     const deleteMessage = ref('');
     const deleteSuccess = ref(false);
-
-    const closeModal = () => {
-      showModal.value = false;
-      editingUser.value = null;
-    };
 
     const confirmDelete = async (user) => {
       if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.login} ?`)) {
@@ -531,17 +557,15 @@ export default {
     const saveUser = async () => {
       try {
         formMessage.value = '';
-
         if (!form.value.password && !editingUser.value) {
           formMessage.value = 'Le mot de passe est requis pour un nouvel utilisateur';
           formSuccess.value = false;
           return;
         }
-
         const userData = {
+          email: form.value.email.trim(),
           nom: form.value.nom.trim(),
           prenom: form.value.prenom.trim(),
-          codeFamille: form.value.codeFamille,
           login: form.value.login.trim(),
           role: form.value.role,
           niveau: form.value.niveau,
@@ -551,18 +575,21 @@ export default {
             genre: form.value.genre
           }
         };
-
         if (!editingUser.value) {
           userData.password = form.value.password;
         }
-
         let response;
         if (editingUser.value) {
-          response = await api.put(`/users/${editingUser.value._id}`, userData);
+          const updateData = {
+            nom: form.value.nom.trim(),
+            prenom: form.value.prenom.trim(),
+            role: form.value.role,
+            genre: form.value.genre
+          };
+          response = await api.put(`/users/${editingUser.value._id}`, updateData);
         } else {
           response = await api.post('/users', userData);
         }
-
         if (response.data) {
           formMessage.value = editingUser.value ?
               'Utilisateur modifié avec succès !' :
@@ -575,7 +602,6 @@ export default {
         let errorMessage = editingUser.value ?
             'Erreur lors de la modification de l\'utilisateur' :
             'Erreur lors de la création de l\'utilisateur';
-
         if (err.response?.status === 404) {
           errorMessage = 'Erreur de connexion au serveur. Vérifiez que le serveur backend est démarré.';
         } else if (err.response?.status === 403) {
@@ -583,24 +609,8 @@ export default {
         } else if (err.response?.data?.message) {
           errorMessage = err.response.data.message;
         }
-
         formMessage.value = errorMessage;
         formSuccess.value = false;
-      }
-    };
-
-    const getRoleBadgeClass = (role) => {
-      switch (role.toLowerCase()) {
-        case 'admin':
-          return 'role-badge admin';
-        case 'simple':
-          return 'role-badge simple';
-        case 'complexe':
-          return 'role-badge complexe';
-        case 'visiteur':
-          return 'role-badge visiteur';
-        default:
-          return 'role-badge';
       }
     };
 
@@ -658,15 +668,13 @@ export default {
 
     const savePointsAdjustment = async () => {
       if (!pointsForm.value.amount) return;
-
       try {
         loading.value = true;
-
+        pointsErrorMessage.value = '';
         const response = await api.post(`/users/${selectedUser.value._id}/points`, {
           amount: parseFloat(pointsForm.value.amount),
           reason: pointsForm.value.reason
         });
-
         // Mettre à jour les points de l'utilisateur dans la liste
         const userIndex = users.value.findIndex(u => u._id === selectedUser.value._id);
         if (userIndex !== -1) {
@@ -705,10 +713,11 @@ export default {
             showPointsHistoryModal.value = true;
           }
         }
-
+        // Ajout : recharger la liste des utilisateurs après ajustement des points
+        await loadUsers();
       } catch (error) {
         console.error('Erreur lors de l\'ajustement des points:', error);
-        alert('Une erreur est survenue lors de l\'ajustement des points.');
+        pointsErrorMessage.value = error.response?.data?.message || "Erreur lors de l'ajustement des points.";
       } finally {
         loading.value = false;
       }
@@ -779,10 +788,9 @@ export default {
       showFamilleModal,
       editingUser,
       defaultAvatar,
+      getPhotoUrl,
       handleImageError,
       editUser,
-      openAddUserModal,
-      openAddFamilleModal,
       closeModal,
       closeFamilleModal,
       confirmDelete,
@@ -823,7 +831,12 @@ export default {
       formatDate,
       formatAction,
       formatPointsChange,
-      getPointsClass
+      getPointsClass,
+
+      // Nouvelles variables pour le chargement
+      isLoading,
+      errorMessage,
+      pointsErrorMessage
     };
   }
 };
@@ -864,70 +877,132 @@ export default {
 }
 
 .users-table {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  overflow: hidden;
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 20px;
 }
 
-table {
+.users-table table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th, td {
-  padding: 8px;
+.users-table th, .users-table td {
+  padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid #eee;
-  font-size: 0.9rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-th {
-  background-color: #f8f9fa;
-  color: #2c5038;
+.users-table th {
+  background-color: #f8fafc;
   font-weight: 600;
-  font-size: 0.9rem;
+  color: #2c5038;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.users-table tbody tr:hover {
+  background-color: #f1f5f9;
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #4a7c59;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Ajustement des largeurs de colonnes */
+.users-table th:nth-child(1), .users-table td:nth-child(1) { width: 60px; }  /* Photo */
+.users-table th:nth-child(2), .users-table td:nth-child(2) { width: 12%; }   /* Nom */
+.users-table th:nth-child(3), .users-table td:nth-child(3) { width: 12%; }   /* Prénom */
+.users-table th:nth-child(4), .users-table td:nth-child(4) { width: 10%; }   /* Famille */
+.users-table th:nth-child(5), .users-table td:nth-child(5) { width: 12%; }   /* Login */
+.users-table th:nth-child(6), .users-table td:nth-child(6) { width: 8%; }    /* Rôle */
+.users-table th:nth-child(7), .users-table td:nth-child(7) { width: 12%; }   /* Niveau */
+.users-table th:nth-child(8), .users-table td:nth-child(8) { width: 8%; }    /* Points */
+.users-table th:nth-child(9), .users-table td:nth-child(9) { width: 16%; }   /* Actions */
+
+/* Style des badges de rôle */
 .role-badge {
-  padding: 3px 6px;
+  padding: 4px 8px;
   border-radius: 12px;
-  font-size: 0.8em;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
 }
 
-.role-badge.admin {
-  background-color: #2c5038;
-  color: white;
+.role-admin {
+  background-color: #fee2e2;
+  color: #b91c1c;
 }
 
-.role-badge.simple {
-  background-color: #4CAF50;
-  color: white;
+.role-simple {
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
-.role-badge.complexe {
-  background-color: #FF9800;
-  color: white;
+.role-complexe {
+  background-color: #dcfce7;
+  color: #166534;
 }
 
-.role-badge.visiteur {
-  background-color: #9E9E9E;
-  color: white;
+.role-visiteur {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
+/* Messages de succès et d'erreur */
+.success-msg, .error-msg {
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.success-msg {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.error-msg {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+/* Colonne d'actions */
 .actions-cell {
   display: flex;
-  gap: 8px;
+  flex-wrap: nowrap;          
   justify-content: flex-start;
-  padding: 4px !important;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: 120px;        
+  padding: 4px;
 }
+
+
+.users-data-table th:last-child,
+.users-data-table td.actions-cell {
+  width: 140px;
+  max-width: 160px;
+  white-space: nowrap;
+  text-align: left;
+}
+
+
+th.actions-header, td.actions-cell {
+  white-space: nowrap;
+  width: 1%;              /* permet au tableau d'ajuster au contenu */
+}
+
 
 .action-btn {
   width: 28px;
@@ -1012,19 +1087,32 @@ th:last-child {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 }
 
-.modal-content {
+.user-modal-content {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  min-width: 400px;
+  max-width: 420px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  position: relative;
+}
+
+@media (max-width: 600px) {
+  .user-modal-content {
+    max-width: 99vw;
+    padding: 10px;
+  }
 }
 
 .modal-actions {
@@ -1067,20 +1155,6 @@ th:last-child {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
-}
-.success-msg {
-  color: #2c5038;
-  margin-top: 10px;
-  font-weight: bold;
-}
-.error-msg {
-  color: #dc3545;
-  margin-top: 10px;
-  font-weight: bold;
-}
-.form-row label[for="role"] {
-  color: #dc3545;
-  font-weight: bold;
 }
 .avatar-homme {
   border: 3px solid #007bff; /* Bleu */
@@ -1368,5 +1442,186 @@ th:last-child {
 
 .primary:hover {
   background-color: #45a049;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #4a7c59;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.no-users {
+  text-align: center;
+  padding: 30px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  color: #64748b;
+}
+
+.no-users i {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  opacity: 0.6;
+}
+
+.no-results {
+  text-align: center;
+  padding: 30px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  color: #64748b;
+}
+
+.no-results i {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  opacity: 0.6;
+}
+
+.niveau-badge {
+  font-size: 0.85em;
+  color: #64748b;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.action-btn.history {
+  background-color: #e0e7ef;
+  color: #2c5038;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.action-btn.history:hover {
+  background-color: #cbd5e1;
+}
+
+.points-actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-width: 180px;
+  max-width: 260px;
+  padding: 4px;
+}
+
+.points-adjust-modal {
+  background: white;
+  padding: 0;
+  border-radius: 10px;
+  max-width: 350px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.points-adjust-modal .modal-header {
+  background: #23613d;
+  color: #fff;
+  padding: 18px 20px 10px 20px;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.points-adjust-modal .modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  flex: 1;
+}
+.points-adjust-modal .close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.points-adjust-modal .modal-body {
+  padding: 18px 20px 20px 20px;
+}
+.points-adjust-modal .points-info {
+  background: #f8f9fa;
+  padding: 10px 12px;
+  border-radius: 7px;
+  margin-bottom: 18px;
+  font-size: 0.98rem;
+}
+.points-adjust-modal .form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+.points-adjust-modal .form-row label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #23613d;
+}
+.points-adjust-modal .form-row input {
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+.points-adjust-modal .modal-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.points-adjust-modal .save-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.points-adjust-modal .cancel-btn {
+  background-color: #9e9e9e;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.points-adjust-modal .error-msg {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-top: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .points-adjust-modal {
+    max-width: 99vw;
+    padding: 0;
+  }
+  .points-adjust-modal .modal-header,
+  .points-adjust-modal .modal-body {
+    padding: 10px;
+  }
 }
 </style>

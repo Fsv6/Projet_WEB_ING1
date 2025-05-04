@@ -1,8 +1,7 @@
-
 <template>
   <div class="login-container">
     <div class="login-image left">
-      <!--<img src="@/assets/kitchen-left.jpg" alt="Cuisine design">-->
+      <img src="@/assets/kitchen-left.jpg" alt="Cuisine gauche" />
     </div>
     <div class="login-card">
       <h2>Bienvenue dans<br>MaCuisineConnectée</h2>
@@ -52,7 +51,7 @@
       </form>
     </div>
     <div class="login-image right">
-      <!--<img src="@/assets/kitchen-right.jpg" alt="Plats cuisinés">-->
+      <img src="@/assets/kitchen-right.jpg" alt="Cuisine droite" />
     </div>
   </div>
 </template>
@@ -118,7 +117,7 @@ export default {
           if (response.user.role === 'admin') {
             this.$router.push('/admin');
           } else {
-            this.$router.push('/dashboard');
+            this.$router.push('/explore');
           }
         }, 1500);
 
@@ -128,6 +127,10 @@ export default {
           type: 'error',
           text: error.response?.data?.message || "Erreur inconnue"
         };
+        this.$nextTick(() => {
+          const alert = document.querySelector('.alert-error');
+          if (alert) alert.scrollIntoView({ behavior: 'smooth' });
+        });
       } finally {
         this.loading = false;
       }
@@ -150,27 +153,34 @@ export default {
 }
 
 .login-image {
-  height: 85vh;
-  width: 200px;
+  height: 580px;
+  width: 280px;
   overflow: hidden;
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(44, 80, 56, 0.10);
 }
-
 .login-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  
+  border-radius: 30px;
+}
+@media (max-width: 1100px) {
+  .login-image { display: none; }
 }
 
 .login-card {
   background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 38px 32px 32px 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(44, 80, 56, 0.13);
   width: 100%;
   max-width: 400px;
+  min-width: 320px;
 }
 
 h2 {

@@ -6,14 +6,7 @@
           <h1>{{ getWelcomeMessage() }}</h1>
           <div class="user-info" v-if="userData">
             <div class="user-profile">
-              <div class="profile-image-container">
-                <img
-                    :src="userData.photo_profil || defaultAvatar"
-                    :alt="'Photo de profil de ' + userData.prenom"
-                    class="profile-pic"
-                    @error="$event.target.src = defaultAvatar"
-                >
-              </div>
+
               <div class="user-details">
                 <div class="date-info">
                   <i class="fas fa-calendar-alt"></i> {{ formatDate(new Date()) }}
@@ -47,6 +40,10 @@
             <router-link to="/admin/user-points" class="action-button">
               <i class="fas fa-coins"></i>
               <span>Gérer les points</span>
+            </router-link>
+            <router-link to="/admin/reports" class="action-button">
+              <i class="fas fa-file-export"></i>
+              <span>Générer rapports</span>
             </router-link>
             <button @click="refreshStats" class="action-button">
               <i class="fas fa-sync-alt"></i>
@@ -129,11 +126,7 @@
             <div class="chart-wrapper">
               <h3>Distribution des utilisateurs par niveau</h3>
               <div class="doughnut-chart">
-                <div class="doughnut-segments">
-                  <div v-for="(count, level) in stats.usersByLevel" :key="level"
-                       class="doughnut-segment"
-                       :style="getDoughnutSegmentStyle(level, stats.usersByLevel)">
-                  </div>
+                <div class="doughnut-segments" :style="{ background: generateConicGradient(stats.usersByLevel) }">
                 </div>
                 <div class="chart-center">
                   <span>{{ stats.usersCount }}</span>
@@ -143,7 +136,7 @@
               <div class="chart-legend">
                 <div v-for="(count, level) in stats.usersByLevel" :key="level" class="legend-item">
                   <span class="color-badge" :style="{ backgroundColor: getLevelColor(level) }"></span>
-                  <span>{{ level }}: {{ count }} ({{ ((count / stats.usersCount) * 100).toFixed(1) }}%)</span>
+                  <span>{{ getNiceLevelName(level) }}: {{ count }} ({{ ((count / stats.usersCount) * 100).toFixed(1) }}%)</span>
                 </div>
               </div>
             </div>
@@ -173,30 +166,7 @@
         </div>
 
         <!-- Menu administration -->
-        <div class="admin-menu">
-          <h2>Navigation</h2>
-          <div class="menu-cards">
-            <router-link to="/admin/users" class="menu-card">
-              <i class="fas fa-users"></i>
-              <span>Gestion des utilisateurs</span>
-            </router-link>
-
-            <router-link to="/admin/families" class="menu-card">
-              <i class="fas fa-home"></i>
-              <span>Gestion des familles</span>
-            </router-link>
-
-            <router-link to="/admin/history" class="menu-card">
-              <i class="fas fa-history"></i>
-              <span>Historique des actions</span>
-            </router-link>
-
-            <router-link to="/admin/user-points" class="menu-card">
-              <i class="fas fa-star"></i>
-              <span>Supervision des points</span>
-            </router-link>
-          </div>
-        </div>
+        
       </div>
     </div>
   </AppLayout>
@@ -282,114 +252,24 @@ export default {
       try {
         loading.value = true;
 
-        // Charger le nombre d'utilisateurs
-        const usersResponse = await api.get('/users');
-        const users = usersResponse.data;
-        stats.value.usersCount = users.length;
-
-        // Calculer les nouveaux utilisateurs de la semaine
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-        // Compter les nouveaux utilisateurs (si date_creation est disponible)
-        stats.value.newUsers = users.filter(user => {
-          if (user.date_creation) {
-            return new Date(user.date_creation) > oneWeekAgo;
-          }
-          return false;
-        }).length;
-
-        // Compter les utilisateurs par niveau
-        stats.value.usersByLevel = users.reduce((acc, user) => {
-          const niveau = user.niveau || 'débutant';
-          acc[niveau] = (acc[niveau] || 0) + 1;
-          return acc;
-        }, {
-          'débutant': 0,
-          'intermédiaire': 0,
-          'avancé': 0,
-          'expert': 0
-        });
-
-        // Charger le nombre de familles
-        const familiesResponse = await api.get('/familles');
-        const families = familiesResponse.data;
-        stats.value.familiesCount = families.length;
-
-        // Calculer le nombre de familles actives avec des points
-        let familiesWithPoints = 0;
-        for (const family of families) {
-          if (family.membres && family.membres.length > 0) {
-            let hasPoints = false;
-            for (const membre of family.membres) {
-              const user = users.find(u => u._id === membre);
-              if (user && user.points > 0) {
-                hasPoints = true;
-                break;
-              }
-            }
-            if (hasPoints) {
-              familiesWithPoints++;
-            }
-          }
+        // Configuration de l'en-tête d'autorisation
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('Token manquant');
         }
-        stats.value.activeWithPoints = familiesWithPoints;
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-        // Charger les statistiques d'actions
-        const historyResponse = await api.get('/history?limit=5');
-        recentActions.value = historyResponse.data.histories;
-        stats.value.actionsCount = historyResponse.data.pagination.total;
-
-        // Calculer le nombre d'actions du jour
-        const today = new Date().toISOString().split('T')[0];
-        stats.value.todayActions = recentActions.value.filter(action =>
-            new Date(action.date).toISOString().split('T')[0] === today
-        ).length;
-
-        // Calculer le total des points dans le système
-        stats.value.totalPoints = users.reduce((sum, user) => sum + (user.points || 0), 0);
-
-        // Calculer les points distribués cette semaine
-        const pointsActions = await api.get('/history?action=ajout_points');
-        const weeklyPointsActions = pointsActions.data.histories.filter(action =>
-            new Date(action.date) > oneWeekAgo
-        );
-        stats.value.pointsDistributed = weeklyPointsActions.reduce((sum, action) =>
-            sum + (action.details.montant || 0), 0
-        );
-
-        // Charger toutes les actions des 7 derniers jours pour le graphique d'actions par jour/heure
-        const allActionsResponse = await api.get('/history?limit=1000');
-        const recentActionsData = allActionsResponse.data.histories.filter(action =>
-            new Date(action.date) > oneWeekAgo
-        );
-
-        // Initialiser le tableau pour les actions par jour et tranche horaire
-        const actionsByDayTime = Array(7).fill().map(() => Array(3).fill(0));
-
-        // Compter les actions par jour et tranche horaire
-        recentActionsData.forEach(action => {
-          const date = new Date(action.date);
-          const day = date.getDay(); // 0 = Dimanche, 1 = Lundi, etc.
-          const hour = date.getHours();
-
-          // Déterminer la tranche horaire
-          let timeSlot;
-          if (hour >= 0 && hour < 8) {
-            timeSlot = 0; // Matin (00h-08h)
-          } else if (hour >= 8 && hour < 16) {
-            timeSlot = 1; // Journée (08h-16h)
-          } else {
-            timeSlot = 2; // Soir (16h-00h)
-          }
-
-          actionsByDayTime[day][timeSlot]++;
-        });
-
-        stats.value.actionsByDayTime = actionsByDayTime;
-
+        // Récupérer toutes les statistiques en un seul appel API
+        const response = await api.get('/history/admin-stats');
+        const adminStats = response.data;
+        
+        // Mettre à jour les statistiques avec les données de l'API
+        stats.value = adminStats;
+        
       } catch (error) {
         console.error('Erreur lors du chargement des statistiques:', error);
+        // En cas d'erreur, ne pas afficher de données fictives, mais garder
+        // les valeurs par défaut initialisées dans le ref stats
       } finally {
         loading.value = false;
       }
@@ -528,41 +408,56 @@ export default {
     // Fonctions pour les graphiques
     const getLevelColor = (level) => {
       const colors = {
-        'débutant': '#3498db',
-        'intermédiaire': '#2ecc71',
-        'avancé': '#f39c12',
-        'expert': '#9b59b6'
+        'débutant': '#4a90e2',   // Bleu plus moderne et vibrant
+        'intermédiaire': '#2ec4b6', // Vert turquoise
+        'avancé': '#f7b801',     // Or plus moderne
+        'expert': '#8a4fff'      // Violet plus moderne
       };
       return colors[level] || '#95a5a6';
     };
 
-    const getDoughnutSegmentStyle = (level, data) => {
+    const getNiceLevelName = (level) => {
+      const names = {
+        'débutant': 'Débutant',
+        'intermédiaire': 'Intermédiaire',
+        'avancé': 'Avancé',
+        'expert': 'Expert'
+      };
+      return names[level] || level;
+    };
+
+    // Fonction pour générer le gradient conique pour le graphique en anneau
+    const generateConicGradient = (data) => {
       const colors = {
-        'débutant': '#3498db',
-        'intermédiaire': '#2ecc71',
-        'avancé': '#f39c12',
-        'expert': '#9b59b6'
+        'débutant': '#4a90e2',
+        'intermédiaire': '#2ec4b6',
+        'avancé': '#f7b801',
+        'expert': '#8a4fff'
       };
 
       const total = Object.values(data).reduce((sum, val) => sum + val, 0);
-      if (total === 0) return { display: 'none' };
+      if (total === 0) return '#eaeaea';
 
-      const levels = Object.keys(data);
-      const currentIndex = levels.indexOf(level);
+      // Générer le gradient conique
+      let conicGradient = 'conic-gradient(';
+      let currentAngle = 0;
 
-      let startAngle = 0;
-      for (let i = 0; i < currentIndex; i++) {
-        startAngle += (data[levels[i]] / total) * 360;
-      }
+      // Construire le gradient en ajoutant chaque segment
+      Object.entries(data).forEach(([level, count], index) => {
+        if (count <= 0) return;
+        
+        const percentage = (count / total) * 100;
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + percentage * 3.6;
+        
+        if (index > 0) conicGradient += ', ';
+        conicGradient += `${colors[level]} ${startAngle}deg ${endAngle}deg`;
+        
+        currentAngle = endAngle;
+      });
 
-      const angle = (data[level] / total) * 360;
-
-      return {
-        backgroundColor: colors[level],
-        transform: `rotate(${startAngle}deg)`,
-        clipPath: `polygon(50% 50%, 50% 0%, ${angle <= 180 ? '100% 0%' : '100% 0%, 100% 100%'}, ${angle <= 90 ? '50% 50%' : angle <= 180 ? '100% 100%, 50% 50%' : '0% 100%, 0% 0%, 50% 0%, 50% 50%'})`,
-        opacity: data[level] > 0 ? 1 : 0
-      };
+      conicGradient += ')';
+      return conicGradient;
     };
 
     // Fonction pour la couleur de la heatmap
@@ -598,7 +493,8 @@ export default {
       getActionIconClass,
       refreshStats,
       getLevelColor,
-      getDoughnutSegmentStyle,
+      getNiceLevelName,
+      generateConicGradient,
       getHeatmapColor
     };
   }
@@ -1090,93 +986,94 @@ h2 {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  transition: all 0.5s ease, transform 0.3s ease;
 }
 
-.doughnut-segment {
+.doughnut-segments:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.chart-center {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  transform-origin: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.enhanced-bar-chart {
-  position: relative;
+.chart-center span {
+  font-size: 1.2rem;
+}
+
+.chart-center small {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+  gap: 8px;
+}
+
+.legend-item {
+  font-size: 0.75rem;
+}
+
+.color-badge {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 5px;
+}
+
+/* Bar Chart Styles */
+.bar-chart {
   height: 200px;
   display: flex;
-  padding: 10px 0 20px 30px;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 10px 5px;
   background-color: white;
   border-radius: 4px;
   box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
 }
 
-.chart-axis-y {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 30px;
+.bar-column {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 5px 0;
-}
-
-.axis-label {
-  font-size: 0.7rem;
-  color: #666;
-  text-align: right;
-  padding-right: 5px;
-}
-
-.bars-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
   height: 100%;
+  padding: 0 5px;
 }
 
-.trend-line {
-  position: absolute;
-  bottom: 30px;
-  left: 30px;
-  right: 10px;
-  height: 150px;
-  background: linear-gradient(to top, rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.3));
-  border-top: 2px dashed rgba(46, 204, 113, 0.6);
-  pointer-events: none;
-}
-
-/* Nouveau graphique de tendance */
-.trend-chart {
-  height: 150px;
-  position: relative;
-  padding: 8px 5px 25px 5px;
-}
-
-.trend-line-container {
-  position: relative;
-  height: 100%;
+.bar-value {
   width: 100%;
-}
-
-.trend-point {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  margin-left: -3px;
-  margin-bottom: -3px;
   background-color: #2ecc71;
-  border-radius: 50%;
-  z-index: 2;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  min-height: 5px; /* pour les valeurs très petites */
+  transition: height 0.5s;
 }
 
-.trend-tooltip {
+.bar-tooltip {
   position: absolute;
-  bottom: 15px;
+  top: -25px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #333;
@@ -1184,94 +1081,171 @@ h2 {
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 0.7rem;
-  white-space: nowrap;
   opacity: 0;
   transition: opacity 0.3s;
-  pointer-events: none;
 }
 
-.trend-point:hover .trend-tooltip {
+.bar-value:hover .bar-tooltip {
   opacity: 1;
 }
 
-.trend-path {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-}
-
-.trend-x-axis {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-}
-
-.trend-hour-label {
-  position: absolute;
-  transform: translateX(-50%);
-  font-size: 0.65rem;
+.bar-label {
+  font-size: 0.7rem;
   color: #666;
+  margin-top: 5px;
 }
 
-/* Graphique de barres horizontales */
-.horizontal-bar-chart {
+/* Actions rapides */
+.quick-actions {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.view-all-link {
+  color: #2c5038;
+  font-size: 0.8rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.action-button {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 5px;
-}
-
-.horizontal-bar-row {
-  display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
 }
 
-.horizontal-bar-label {
-  width: 100px;
-  font-size: 0.8rem;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  padding-right: 10px;
+.action-button:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
-.horizontal-bar-container {
-  flex: 1;
-  height: 20px;
-  background-color: #f1f1f1;
-  border-radius: 3px;
-  overflow: hidden;
+.action-button i {
+  font-size: 1.1rem;
+  color: #2c5038;
 }
 
-.horizontal-bar {
-  height: 100%;
-  position: relative;
+.action-button span {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Menu navigation */
+.admin-menu {
+  margin-top: 12px;
+}
+
+.admin-menu h2 {
+  color: #2c5038;
+  margin-bottom: 12px;
+}
+
+.menu-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.menu-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  border-radius: 3px;
-  transition: width 0.5s;
-}
-
-.horizontal-bar-value {
-  position: absolute;
-  right: 5px;
-  color: white;
-  font-size: 0.8rem;
-  font-weight: bold;
-  text-shadow: 0 0 2px rgba(0,0,0,0.5);
-}
-
-/* Styles pour le message d'absence de données */
-.no-data-message {
   text-align: center;
-  color: #95a5a6;
-  font-style: italic;
-  padding: 20px;
+  gap: 10px;
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.menu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.menu-card i {
+  font-size: 1.5rem;
+  color: #2c5038;
+}
+
+.menu-card span {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .accueil-container {
+    padding: 10px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .accueil-container {
+    padding: 8px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .welcome-card {
+    padding: 12px;
+  }
+
+  .user-profile {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-image-container {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+
+  .activity-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* Heatmap styles */
@@ -1336,7 +1310,7 @@ h2 {
 .heatmap-value {
   font-size: 0.65rem;
   font-weight: bold;
-  color: white;
+  color: rgb(85, 81, 81);
   text-shadow: 0 0 1px rgba(0,0,0,0.5);
 }
 </style> 

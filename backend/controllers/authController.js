@@ -46,6 +46,25 @@ exports.login = async (req, res) => {
   }
 };
 
+// Fonction pour mettre à jour le niveau et le rôle en fonction des points (alignée avec le frontend)
+const updateUserNiveauAndRole = (points) => {
+    let niveau = 'débutant';
+    let role = 'simple';
+
+    if (points >= 7) {
+        niveau = 'expert';
+        role = 'admin';
+    } else if (points >= 5) {
+        niveau = 'avancé';
+        role = 'complexe';
+    } else if (points >= 3) {
+        niveau = 'intermédiaire';
+        role = 'complexe';
+    }
+
+    return { niveau, role };
+};
+
 // Register
 exports.register = async (req, res) => {
   try {
@@ -60,6 +79,10 @@ exports.register = async (req, res) => {
     // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(mot_de_passe, 10);
 
+    // Calcul automatique du niveau et du rôle selon les points (par défaut 0)
+    const points = req.body.points || 0;
+    const { niveau, role } = updateUserNiveauAndRole(points);
+
     // Créer l'utilisateur
     const utilisateur = await Utilisateur.create({
       email,
@@ -67,8 +90,9 @@ exports.register = async (req, res) => {
       nom,
       prenom,
       nom_utilisateur,
-      role: 'simple',
-      niveau: 'debutant'
+      points,
+      role,
+      niveau
     });
 
     // Générer le token JWT
@@ -92,7 +116,8 @@ exports.register = async (req, res) => {
         nom: utilisateur.nom,
         prenom: utilisateur.prenom,
         role: utilisateur.role,
-        niveau: utilisateur.niveau
+        niveau: utilisateur.niveau,
+        points: utilisateur.points
       }
     });
   } catch (err) {

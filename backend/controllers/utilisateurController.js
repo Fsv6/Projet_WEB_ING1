@@ -28,10 +28,36 @@ exports.getUtilisateurById = async (req, res) => {
   }
 };
 
+// Fonction pour mettre à jour le niveau et le rôle en fonction des points (alignée avec le frontend)
+const updateUserNiveauAndRole = (points) => {
+    let niveau = 'débutant';
+    let role = 'simple';
+
+    if (points >= 7) {
+        niveau = 'expert';
+        role = 'admin';
+    } else if (points >= 5) {
+        niveau = 'avancé';
+        role = 'complexe';
+    } else if (points >= 3) {
+        niveau = 'intermédiaire';
+        role = 'complexe';
+    }
+
+    return { niveau, role };
+};
+
 // Créer un nouvel utilisateur
 exports.createUtilisateur = async (req, res) => {
   try {
-    const nouvelUtilisateur = await Utilisateur.create(req.body);
+    const points = req.body.points || 0;
+    const { niveau, role } = updateUserNiveauAndRole(points);
+    const nouvelUtilisateur = await Utilisateur.create({
+      ...req.body,
+      points,
+      niveau,
+      role
+    });
     res.status(201).json(nouvelUtilisateur);
   } catch (err) {
     console.error(err);
@@ -43,7 +69,13 @@ exports.createUtilisateur = async (req, res) => {
 exports.updateUtilisateur = async (req, res) => {
   const { id } = req.params;
   try {
-    const [updated] = await Utilisateur.update(req.body, {
+    let updateData = { ...req.body };
+    if (updateData.points !== undefined) {
+      const { niveau, role } = updateUserNiveauAndRole(updateData.points);
+      updateData.niveau = niveau;
+      updateData.role = role;
+    }
+    const [updated] = await Utilisateur.update(updateData, {
       where: { id: id }
     });
     if (updated) {
@@ -74,7 +106,4 @@ exports.deleteUtilisateur = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: 'Erreur lors de la suppression de l\'utilisateur' });
   }
-
-
-
 };

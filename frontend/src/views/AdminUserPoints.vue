@@ -43,7 +43,7 @@
           <tbody>
           <tr v-for="user in displayedUsers" :key="user._id">
             <td class="user-info">
-              <img :src="user.photo || defaultAvatar" class="user-avatar" alt="Avatar">
+              <img :src="getPhotoUrl(user.photo, user._id)" class="user-avatar" alt="Avatar">
               <div class="user-details">
                 <div class="user-name">{{ user.personne?.nom }} {{ user.personne?.prenom }}</div>
                 <div class="user-email">{{ user.email }}</div>
@@ -55,9 +55,7 @@
             <td>{{ user.niveau }}</td>
             <td>{{ formatLastActivity(user.lastActivity) }}</td>
             <td class="actions-column">
-              <button class="btn view-history" @click="openHistoryModal(user)">
-                <i class="fas fa-history"></i> Historique
-              </button>
+
               <button class="btn edit-points" @click="openAddPointsModal(user)">
                 <i class="fas fa-plus-circle"></i> Ajuster
               </button>
@@ -116,7 +114,7 @@
                     type="text"
                     id="points-reason"
                     v-model="pointsReason"
-                    placeholder="Ex: Participation à un événement"
+                    placeholder="Ex: Aziz a été sage !"
                 />
               </div>
             </div>
@@ -143,6 +141,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import AppLayout from '@/layout/AppLayoutGlobal.vue';
 import api from '@/services/api';
 import defaultAvatar from '@/assets/default-avatar.png';
+import { getPhotoUrl } from '@/utils/photo';
 
 export default {
   name: 'AdminUserPoints',
@@ -286,6 +285,16 @@ export default {
         const updatedUser = users.value.find(u => u._id === selectedUser.value._id);
         if (updatedUser) {
           updatedUser.points = response.data.points;
+          // Mettre à jour le niveau en fonction des points
+          if (response.data.points >= 7) {
+            updatedUser.niveau = 'expert';
+          } else if (response.data.points >= 5) {
+            updatedUser.niveau = 'avancé';
+          } else if (response.data.points >= 3) {
+            updatedUser.niveau = 'intermédiaire';
+          } else {
+            updatedUser.niveau = 'débutant';
+          }
         }
 
         // Close modal
@@ -328,6 +337,7 @@ export default {
       pointsAmount,
       pointsReason,
       defaultAvatar,
+      getPhotoUrl,
 
       debounceSearch,
       applyFilters,

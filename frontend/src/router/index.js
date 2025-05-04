@@ -107,6 +107,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/manage/objects/:id/activity',
+    name: 'ObjectActivity',
+    component: () => import('@/views/ObjectActivityView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/recettes/new',
     name: 'NewRecettes',
     component: () => import('@/views/NewRecettes.vue')
@@ -146,14 +152,17 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   {
+    path: '/admin/reports',
+    name: 'AdminReports',
+    component: () => import('@/views/AdminReports.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
     path: '/family-members',
     name: 'FamilyMembers',
     component: () => import('@/views/FamilyMembers.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   }
-
-
-
 ]
 
 const router = createRouter({

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import AppLayout from '@/layout/AppLayoutGlobal.vue'
 import api from '@/services/api'
+import { getPhotoUrl } from '@/utils/photo'
 
 const user = ref(null)
 const oldPassword = ref('')
@@ -104,7 +105,7 @@ const updatePassword = async () => {
           <h3>🖼️ Photo de profil</h3>
 
           <img
-              :src="user?.photo ? `http://localhost:5000${user.photo}` : require('@/assets/default-avatar.png')"
+              :src="getPhotoUrl(user?.photo, user?._id)"
               alt="Photo de profil"
               class="avatar"
           />

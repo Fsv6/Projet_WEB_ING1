@@ -57,6 +57,18 @@ router.put('/me', auth, async (req, res) => {
 // Mettre à jour la photo
 router.put('/me/photo', auth, upload.single('photo'), userController.updatePhoto);
 
+// Servir la photo de profil depuis la base
+router.get('/:id/photo', async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user || !user.photo) {
+        // Par défaut, renvoyer une image par défaut (optionnel)
+        return res.status(404).send('Aucune photo');
+    }
+    // Détection du type MIME (simple, à améliorer si besoin)
+    res.set('Content-Type', user.photoType || 'image/jpeg');
+    res.send(user.photo);
+});
+
 // Mettre à jour le mot de passe
 router.put('/me/password', auth, userController.updatePassword);
 
@@ -133,10 +145,14 @@ router.post('/:id/upgrade', auth, async (req, res) => {
 // Liste des utilisateurs (admin uniquement)
 router.get('/', auth, async (req, res) => {
     try {
-        const users = await User.find({}, 'login photo niveau personne')
+        const users = await User.find({}, 'login photo niveau personne role points famille')
             .populate({
                 path: 'personne',
-                select: 'typeMembre genre dateNaissance age'
+                select: 'nom prenom genre dateNaissance typeMembre age'
+            })
+            .populate({
+                path: 'famille',
+                select: 'codeFamille nom'
             });
         res.json(users);
     } catch (error) {
@@ -271,7 +287,53 @@ router.get('/search', [auth, isAdmin], async (req, res) => {
 });
 
 // Obtenir les membres de la famille de l'utilisateur connecté
-router.get('/family-members', auth, getFamilyMembers);
+router.get('/family-members', auth, userController.getFamilyMembers);
+
+// Ajouter une validation par défaut pour `email` dans le backend
+router.post('/create', async (req, res) => {
+    try {
+        const { email, password, nom, prenom, login } = req.body;
+
+        // Vérification des champs requis
+        if (!email || !password || !nom || !prenom || !login) {
+            return res.status(400).json({ message: "Tous les champs requis doivent être remplis." });
+        }
+
+        const newUser = new User({ email, password, nom, prenom, login });
+        await newUser.save();
+        res.status(201).json({ message: "Utilisateur créé avec succès", user: newUser });
+    } catch (err) {
+        console.error("Erreur lors de la création de l'utilisateur:", err);
+        res.status(500).json({ message: "Erreur lors de la création de l'utilisateur", error: err });
+    }
+});
+
+// Modifier un utilisateur (admin uniquement)
+router.put('/:id', [auth, isAdmin], async (req, res) => {
+    try {
+        const { nom, prenom, role, genre } = req.body;
+        const user = await User.findById(req.params.id).populate('personne');
+        if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+
+        if (role) user.role = role;
+
+        if (user.personne) {
+            if (nom) user.personne.nom = nom;
+            if (prenom) user.personne.prenom = prenom;
+            if (genre) user.personne.genre = genre;
+            await user.personne.save();
+        } else {
+            if (nom) user.nom = nom;
+            if (prenom) user.prenom = prenom;
+            if (genre) user.genre = genre;
+        }
+
+        await user.save();
+        res.json({ message: 'Utilisateur modifié avec succès' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur serveur', error });
+    }
+});
 
 module.exports = router;
 

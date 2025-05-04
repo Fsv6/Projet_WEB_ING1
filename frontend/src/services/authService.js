@@ -17,7 +17,14 @@ const authService = {
 
   async register(userData) {
     try {
-      const response = await api.post('/auth/register', userData);
+      let response;
+      if (userData instanceof FormData) {
+        response = await api.post('/auth/register', userData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        response = await api.post('/auth/register', userData);
+      }
       return response.data;
     } catch (error) {
       throw error;

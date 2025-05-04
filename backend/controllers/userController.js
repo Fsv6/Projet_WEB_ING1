@@ -7,10 +7,12 @@ exports.updatePhoto = async (req, res) => {
         const user = await User.findById(req.user.id)
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" })
 
-        user.photo = `/uploads/${req.file.filename}`
+        if (!req.file) return res.status(400).json({ message: "Aucun fichier envoyé" });
+        user.photo = req.file.buffer;
+        user.photoType = req.file.mimetype;
         await user.save()
 
-        res.json({ message: "Photo mise à jour", photo: user.photo })
+        res.json({ message: "Photo mise à jour" })
     } catch (error) {
         res.status(500).json({ message: "Erreur serveur", error })
     }
@@ -37,6 +39,25 @@ exports.updatePassword = async (req, res) => {
     }
 }
 
+// Fonction pour mettre à jour le niveau et le rôle en fonction des points (alignée avec le frontend)
+const updateUserNiveauAndRole = (points) => {
+    let niveau = 'débutant';
+    let role = 'simple';
+
+    if (points >= 7) {
+        niveau = 'expert';
+        role = 'admin';
+    } else if (points >= 5) {
+        niveau = 'avancé';
+        role = 'complexe';
+    } else if (points >= 3) {
+        niveau = 'intermédiaire';
+        role = 'complexe';
+    }
+
+    return { niveau, role };
+};
+
 exports.addPoints = async (req, res) => {
     const userId = req.params.id;
     const { amount, reason } = req.body;
@@ -57,21 +78,31 @@ exports.addPoints = async (req, res) => {
             return res.status(404).json({ error: 'Utilisateur non trouvé.' });
         }
 
+        // Vérifier si les champs requis sont présents
+        if (!user.nom || !user.prenom) {
+            try {
+                // Utiliser directement des valeurs par défaut
+                user.nom = user.nom || "Utilisateur";
+                user.prenom = user.prenom || "Sans Nom";
+            } catch (error) {
+                console.error("Erreur lors de la gestion des noms par défaut:", error);
+                // Continuer malgré l'erreur
+            }
+        }
+
         // Calculer les nouveaux points
         const oldPoints = user.points;
         user.points += parseFloat(amount);
 
-        // Mise à jour automatique du niveau et du rôle en fonction des points
+        // Mise à jour automatique du niveau en fonction des points
         const updatedNiveauRole = updateUserNiveauAndRole(user.points);
 
         const oldNiveau = user.niveau;
         const oldRole = user.role;
 
-        // Mettre à jour le niveau et le rôle uniquement si l'utilisateur n'est pas admin
-        if (user.role !== 'admin') {
-            user.niveau = updatedNiveauRole.niveau;
-            user.role = updatedNiveauRole.role;
-        }
+        // Mettre à jour uniquement le niveau selon les points
+        user.niveau = updatedNiveauRole.niveau;
+        // user.role reste inchangé
 
         await user.save();
 
@@ -104,117 +135,35 @@ exports.addPoints = async (req, res) => {
         await newHistory.save();
 
         console.log(`✅ Points mis à jour : ${user.points}`);
-        console.log(`✅ Niveau: ${user.niveau}, Rôle: ${user.role}`);
 
+        // Réponse au frontend pour confirmer la réussite
         res.status(200).json({
-            message: 'Points ajoutés avec succès',
+            message: "Points mis à jour avec succès",
             points: user.points,
             niveau: user.niveau,
-            role: user.role,
-            niveauChanged: oldNiveau !== user.niveau,
-            roleChanged: oldRole !== user.role
+            role: user.role
         });
-
-    } catch (err) {
-        console.error("💥 Erreur serveur :", err.message);
-        res.status(500).json({ error: 'Erreur serveur interne.' });
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de points :", error);
+        res.status(500).json({ message: "Erreur serveur", error: error.message, stack: error.stack });
     }
-};
-
-exports.upgradeLevel = async (req, res) => {
-    const userId = req.params.id;
-    const { niveau } = req.body;
-
-    try {
-        const user = await User.findById(userId);
-        if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-
-        console.log(`🔁 Changement demandé : ${user.niveau} ➡️ ${niveau}`);
-
-        user.niveau = niveau;
-
-        // Mise à jour du rôle automatiquement
-        if (niveau === 'avancé') user.role = 'complexe';
-        else if (niveau === 'expert') user.role = 'admin';
-        else user.role = 'simple';
-
-        await user.save();
-
-        console.log('✅ Utilisateur mis à jour :', user.niveau, user.role);
-
-        res.status(200).json({ niveau: user.niveau, role: user.role });
-
-    } catch (err) {
-        console.error('❌ Erreur serveur upgrade :', err);
-        res.status(500).json({ error: 'Erreur serveur' });
-    }
-};
-
-/**
- * Fonction pour déterminer le niveau et le rôle d'un utilisateur en fonction des points
- * @param {Number} points - Nombre de points de l'utilisateur
- * @returns {Object} Nouveau niveau et rôle
- */
-function updateUserNiveauAndRole(points) {
-    let niveau, role;
-
-    if (points <= 0) {
-        niveau = null;
-        role = 'visiteur';
-    }else if (points < 3) {
-        niveau = 'débutant';
-        role = 'simple';
-    } else if (points < 5) {
-        niveau = 'intermédiaire';
-        role = 'simple';
-    } else if (points < 7) {
-        niveau = 'avancé';
-        role = 'complexe';
-    } else {
-        niveau = 'expert';
-        role = 'admin';
-    }
-
-    return { niveau, role };
 }
 
-/**
- * Get family members of the authenticated user
- */
 exports.getFamilyMembers = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).populate({
-            path: 'famille',
-            populate: {
-                path: 'membres.personne',
-                model: 'Personne',
-            },
-        });
-
-        if (!user || !user.famille) {
-            return res.status(404).json({ message: 'Famille non trouvée pour cet utilisateur.' });
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
-        const familyMembers = await Promise.all(
-            user.famille.membres.map(async (member) => {
-                const relatedUser = await User.findOne({ personne: member.personne._id }).select('role niveau points');
-                return {
-                    id: member.personne._id,
-                    nom: member.personne.nom,
-                    prenom: member.personne.prenom,
-                    role: relatedUser ? relatedUser.role : 'Non spécifié',
-                    niveau: relatedUser ? relatedUser.niveau : 'Non spécifié',
-                    points: relatedUser ? relatedUser.points : 0,
-                };
-            })
-        );
+        // Récupérer les membres de la famille
+        const familyMembers = await User.find({ 
+            _id: { $in: user.familyMembers, $ne: user._id } // Combiner les filtres correctement
+        }).select('-password'); // Ne pas exclure photo et photoType
 
-        res.status(200).json(familyMembers);
+        res.json(familyMembers);
     } catch (error) {
-        console.error('Erreur lors de la récupération des membres de la famille:', error);
-        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+        console.error("Erreur lors de la récupération des membres de la famille:", error);
+        res.status(500).json({ message: "Erreur serveur", error });
     }
 };
-
-
-

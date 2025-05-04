@@ -17,20 +17,24 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     trim: true,
-    required: true,
+    required: [true, 'L\'email est requis'],
     unique: true
   },
   login: {
     type: String,
-    required: true,
+    required: [true, 'Le login est requis'],
     unique: true,
     trim: true
   },
   password: {
     type: String,
-    required: true
+    required: [true, 'Le mot de passe est requis']
   },
   photo: {
+    type: Buffer,
+    default: null
+  },
+  photoType: {
     type: String,
     default: null
   },
@@ -51,7 +55,19 @@ const userSchema = new mongoose.Schema({
   points: {
     type: Number,
     default: 0
-  }
+  },
+  nom: {
+    type: String,
+    required: false
+  },
+  prenom: {
+    type: String,
+    required: false
+  },
+  familyMembers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 }, {
   // Ajouter les timestamps (createdAt, updatedAt)
   timestamps: true

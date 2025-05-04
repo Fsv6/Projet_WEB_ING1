@@ -31,6 +31,7 @@ const historySchema = new mongoose.Schema({
             'suppression_recette',
             'notation_recette',
             'commentaire_recette',
+            'consultation_recette',
             // Objets/Ingrédients
             'creation_objet',
             'modification_objet',
@@ -43,8 +44,18 @@ const historySchema = new mongoose.Schema({
         default: Date.now
     },
     details: {
-        type: mongoose.Schema.Types.Mixed, // Permet de stocker n'importe quel type de données
-        default: {}
+        type: mongoose.Schema.Types.Mixed,
+        default: {},
+        // Validation spécifique pour l'action utilisation_objet
+        validate: {
+            validator: function(details) {
+                if (this.action === 'utilisation_objet') {
+                    return details.objetId && details.duree !== undefined;
+                }
+                return true;
+            },
+            message: 'Les détails de l\'utilisation d\'un objet doivent inclure l\'ID de l\'objet et la durée'
+        }
     },
     ip: {
         type: String

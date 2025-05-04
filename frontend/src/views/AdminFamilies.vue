@@ -28,7 +28,6 @@
             <th>Nom</th>
             <th>Description</th>
             <th>Membres</th>
-            <th>Créée le</th>
             <th>Actions</th>
           </tr>
           </thead>
@@ -40,7 +39,6 @@
             <td>
               <span class="badge-members">{{ getMembresValidesCount(famille) }}</span>
             </td>
-            <td>{{ formatDate(famille.createdAt) }}</td>
             <td class="actions-cell">
               <button @click="editFamille(famille)" class="action-btn edit" title="Modifier">
                 <i class="fas fa-edit"></i>
@@ -127,7 +125,7 @@
               <tr v-for="member in filteredFamilyMembers" :key="member._id">
                 <td>
                   <div class="member-avatar">
-                    <i :class="getGenderIcon(member.genre)"></i>
+                    <img :src="getPhotoUrl(member.photo, member._id)" class="member-avatar" alt="Avatar">
                   </div>
                 </td>
                 <td>{{ member.nom }}</td>
@@ -226,7 +224,7 @@
               <select v-model="newPersonForm.genre">
                 <option value="Homme">Homme</option>
                 <option value="Femme">Femme</option>
-                <option value="Non spécifié">Non spécifié</option>
+                <option value="Autres">Autres</option>
               </select>
             </div>
           </div>
@@ -277,6 +275,7 @@
 import { ref, onMounted, computed } from 'vue';
 import AppLayout from '@/layout/AppLayoutGlobal.vue';
 import api from '@/services/api';
+import { getPhotoUrl } from '@/utils/photo';
 
 export default {
   name: 'AdminFamilies',
@@ -312,7 +311,7 @@ export default {
     const newPersonForm = ref({
       nom: '',
       prenom: '',
-      genre: 'Non spécifié'
+      genre: 'Homme'
     });
     const memberMessage = ref('');
     const memberSuccess = ref(false);
@@ -392,8 +391,9 @@ export default {
     });
 
     const formatDate = (dateString) => {
-      if (!dateString) return '-';
+      if (!dateString) return 'Non renseignée';
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Non renseignée';
       return date.toLocaleDateString('fr-FR');
     };
 
@@ -671,7 +671,7 @@ export default {
       newPersonForm.value = {
         nom: '',
         prenom: '',
-        genre: 'Non spécifié'
+        genre: 'Homme'
       };
       memberMessage.value = '';
     };
@@ -938,7 +938,8 @@ export default {
       memberFilterQuery,
       filteredFamilyMembers,
       getMembresValidesCount,
-      membresValidesCount
+      membresValidesCount,
+      getPhotoUrl
     };
   }
 };

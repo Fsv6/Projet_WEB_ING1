@@ -3,12 +3,31 @@
     <div class="manage-objects-page">
       <h1>🛠️ Gestion des objets connectés</h1>
 
+      <!-- Barre de recherche et filtres -->
+      <div class="filters-objects">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher par nom, type ou statut..."
+          class="search-objects"
+        />
+        <select v-model="selectedType" class="filter-select">
+          <option value="">Tous les types</option>
+          <option v-for="type in uniqueTypes" :key="type" :value="type">{{ type }}</option>
+        </select>
+        <select v-model="selectedStatut" class="filter-select">
+          <option value="">Tous les statuts</option>
+          <option value="Actif">Actif</option>
+          <option value="Inactif">Inactif</option>
+        </select>
+      </div>
+
       <!-- Bouton pour afficher/masquer le formulaire -->
       <button @click="showForm = !showForm" class="btn-toggle">
         {{ showForm ? 'Annuler' : '➕ Ajouter un objet' }}
       </button>
 
-      <!-- Formulaire d’ajout -->
+      <!-- Formulaire d'ajout -->
       <form v-if="showForm" @submit.prevent="createObject" class="form-ajout">
         <div class="form-group">
           <label>Nom</label>
@@ -38,7 +57,6 @@
           </select>
         </div>
 
-
         <div class="form-group">
           <label>Niveau de danger</label>
           <select v-model="form.niveauDanger">
@@ -59,18 +77,13 @@
         <div class="form-group" v-if="form.supporteMode">
           <label>Mode par défaut</label>
           <input v-model="form.mode" placeholder="Ex: Espresso, Auto..." />
-        </div><div class="form-group" v-if="form.supporteMode">
-        <label>Modes disponibles (séparés par virgules)</label>
-        <input v-model="modesInput" placeholder="Ex: Espresso, Lungo" />
-      </div>
-
-
+        </div>
 
         <button type="submit" class="btn-submit">Créer l'objet</button>
       </form>
 
       <!-- Tableau des objets -->
-      <table v-if="objets.length" class="objects-table">
+      <table v-if="filteredObjects.length" class="objects-table">
         <thead>
         <tr>
           <th>Nom</th>
@@ -80,7 +93,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="obj in objets" :key="obj._id">
+        <tr v-for="obj in filteredObjects" :key="obj._id">
           <td>{{ obj.nom }}</td>
           <td>{{ obj.type }}</td>
           <td>{{ obj.statut }}</td>
@@ -89,25 +102,32 @@
               <button class="btn-edit">Modifier</button>
             </router-link>
 
+            <router-link :to="`/manage/objects/${obj._id}/activity`">
+              <button class="btn-activity">Fiche technique</button>
+            </router-link>
+
             <button @click="requestDeletion(obj)">🗑️ Solliciter suppression</button>
           </td>
         </tr>
         </tbody>
       </table>
 
-      <p v-else>Aucun objet pour le moment.</p>
+      <p v-else>Aucun objet ne correspond à votre recherche ou filtre.</p>
     </div>
   </AppLayout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '@/services/api'
 import AppLayout from '@/layout/AppLayoutGlobal.vue'
 
 const objets = ref([])
 const showForm = ref(false)
 const modesInput = ref('')
+const searchQuery = ref('')
+const selectedType = ref('')
+const selectedStatut = ref('')
 
 const form = ref({
   nom: '',
@@ -119,6 +139,25 @@ const form = ref({
   niveauDanger: 'faible',
   supporteTemperature: false,
   supporteMode: false
+})
+
+const uniqueTypes = computed(() => {
+  const types = objets.value.map(obj => obj.type).filter(Boolean)
+  return [...new Set(types)]
+})
+
+const filteredObjects = computed(() => {
+  return objets.value.filter(obj => {
+    const matchesSearch =
+      (!searchQuery.value ||
+        obj.nom.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        (obj.type && obj.type.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (obj.statut && obj.statut.toLowerCase().includes(searchQuery.value.toLowerCase()))
+      )
+    const matchesType = !selectedType.value || obj.type === selectedType.value
+    const matchesStatut = !selectedStatut.value || obj.statut === selectedStatut.value
+    return matchesSearch && matchesType && matchesStatut
+  })
 })
 
 onMounted(async () => {
@@ -163,7 +202,6 @@ const createObject = async () => {
     alert('❌ Erreur lors de la création');
   }
 };
-
 
 const requestDeletion = async (obj) => {
   try {
@@ -236,5 +274,42 @@ input, textarea, select {
 
 .objects-table th {
   background-color: #f5f5f5;
+}
+
+.filters-objects {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 18px 0;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-objects {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  min-width: 220px;
+  font-size: 1rem;
+}
+
+.filter-select {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.btn-activity {
+  background-color: #4a7c59;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.btn-activity:hover {
+  background-color: #3a6a49;
 }
 </style>

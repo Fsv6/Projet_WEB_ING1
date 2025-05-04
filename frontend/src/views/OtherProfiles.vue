@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import AppLayout from '@/layout/AppLayoutGlobal.vue'
 import api from '@/services/api'
 import { useAuthStore } from '../stores/auth'
+import { getPhotoUrl } from '@/utils/photo'
 const auth = useAuthStore()
 const users = ref([])
 
@@ -26,7 +27,7 @@ onMounted(async () => {
         <li v-for="user in users.filter(u => u._id !== auth.userId)" :key="user._id" class="member-card">
           <img
               class="avatar"
-              :src="user.photo ? `http://localhost:5000${user.photo}` : require('@/assets/default-avatar.png')"
+              :src="getPhotoUrl(user.photo, user._id)"
               alt="photo"
           />
 
