@@ -1,0 +1,297 @@
+/* Mode sombre minimaliste et cohérent */
+html.dark-mode {
+  /* Palette simple et limitée */
+  --dark-bg-main: #0f172a;      /* Bleu nuit principal */
+  --dark-bg-card: #1e293b;      /* Bleu nuit pour conteneurs */
+  --dark-bg-input: #334155;     /* Bleu nuit plus clair pour champs */
+  --dark-text: #e2e8f0;         /* Texte principal */
+  --dark-text-muted: #94a3b8;   /* Texte secondaire */
+  --dark-border: #334155;       /* Bordures */
+  --dark-accent: #4a7c59;       /* Vert pour accent */
+  --dark-error: #991b1b;        /* Rouge erreur */
+  
+  /* Réglages globaux */
+  background-color: var(--dark-bg-main);
+  color: var(--dark-text);
+}
+
+/* Application universelle aux éléments de base */
+html.dark-mode body,
+html.dark-mode main,
+html.dark-mode header,
+html.dark-mode footer,
+html.dark-mode section,
+html.dark-mode nav,
+html.dark-mode aside {
+  background-color: var(--dark-bg-main) !important;
+  color: var(--dark-text) !important;
+}
+
+/* Tous les conteneurs et cartes */
+html.dark-mode div,
+html.dark-mode article,
+html.dark-mode .card,
+html.dark-mode .section,
+html.dark-mode .container,
+html.dark-mode .panel,
+html.dark-mode section,
+html.dark-mode form,
+html.dark-mode fieldset,
+html.dark-mode [class*="card"],
+html.dark-mode [class*="panel"],
+html.dark-mode [class*="container"],
+html.dark-mode [class*="box"] {
+  background-color: var(--dark-bg-card) !important;
+  color: var(--dark-text) !important;
+  border-color: var(--dark-border) !important;
+  border-radius: 6px !important;
+}
+
+/* Contenu texte */
+html.dark-mode h1,
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode h4,
+html.dark-mode h5,
+html.dark-mode h6,
+html.dark-mode p,
+html.dark-mode span,
+html.dark-mode label {
+  color: var(--dark-text) !important;
+}
+
+/* Texte secondaire */
+html.dark-mode small,
+html.dark-mode .text-muted,
+html.dark-mode [class*="muted"],
+html.dark-mode [class*="secondary"] {
+  color: var(--dark-text-muted) !important;
+}
+
+/* Éléments interactifs */
+html.dark-mode button,
+html.dark-mode input,
+html.dark-mode select,
+html.dark-mode textarea,
+html.dark-mode .btn,
+html.dark-mode [class*="btn"],
+html.dark-mode [role="button"] {
+  background-color: var(--dark-bg-input) !important;
+  color: var(--dark-text) !important;
+  border-color: var(--dark-border) !important;
+  border-radius: 4px !important;
+}
+
+/* Boutons principaux */
+html.dark-mode .btn-primary,
+html.dark-mode .auth-btn,
+html.dark-mode .theme-toggle-btn {
+  background-color: var(--dark-accent) !important;
+  color: white !important;
+}
+
+/* Boutons danger */
+html.dark-mode .logout-btn,
+html.dark-mode .danger,
+html.dark-mode [class*="danger"] {
+  background-color: var(--dark-error) !important;
+  color: white !important;
+}
+
+/* Liens */
+html.dark-mode a,
+html.dark-mode a:link,
+html.dark-mode a:visited {
+  color: var(--dark-accent) !important;
+  text-decoration: none !important;
+}
+
+/* Éléments de données */
+html.dark-mode table,
+html.dark-mode tbody,
+html.dark-mode tr {
+  background-color: var(--dark-bg-card) !important;
+  color: var(--dark-text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html.dark-mode th {
+  background-color: var(--dark-bg-main) !important;
+  color: var(--dark-text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html.dark-mode td {
+  border-color: var(--dark-border) !important;
+}
+
+/* Effet subtle pour alterner les lignes */
+html.dark-mode tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Barre latérale */
+html.dark-mode .sidebar {
+  background-color: var(--dark-bg-main) !important;
+  border-right: 1px solid var(--dark-border) !important;
+}
+
+html.dark-mode .nav-link {
+  color: var(--dark-text) !important;
+}
+
+html.dark-mode .nav-link:hover {
+  background-color: var(--dark-bg-card) !important;
+}
+
+/* Badge de niveaux et états */
+html.dark-mode [class*="badge"],
+html.dark-mode .badge {
+  background-color: var(--dark-bg-input) !important;
+  color: var(--dark-text) !important;
+  padding: 2px 8px !important;
+  border-radius: 12px !important;
+}
+
+/* Utilitaires courants */
+html.dark-mode .border,
+html.dark-mode [class*="border"] {
+  border-color: var(--dark-border) !important;
+}
+
+html.dark-mode hr {
+  border-color: var(--dark-border) !important;
+  opacity: 0.5 !important;
+}
+
+/* Champs spéciaux */
+html.dark-mode input[type="file"]::file-selector-button {
+  background-color: var(--dark-bg-input) !important;
+  color: var(--dark-text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Page Membres de Famille - Style spécifique */
+html.dark-mode .family-members-container .page-title {
+  color: var(--dark-text) !important;
+}
+
+html.dark-mode .family-members-container .page-title::after {
+  background-color: var(--dark-accent) !important;
+}
+
+html.dark-mode .family-members-container .page-title .members-count {
+  color: var(--dark-text-muted) !important;
+}
+
+html.dark-mode .family-members-container .loading-indicator {
+  background-color: var(--dark-bg-card) !important;
+  color: var(--dark-text) !important;
+}
+
+html.dark-mode .family-members-container .no-members {
+  background-color: var(--dark-bg-card) !important;
+}
+
+html.dark-mode .family-members-container .no-members i {
+  color: var(--dark-text-muted) !important;
+}
+
+html.dark-mode .family-members-container .no-members h3 {
+  color: var(--dark-text) !important;
+}
+
+html.dark-mode .family-members-container .no-members p {
+  color: var(--dark-text-muted) !important;
+}
+
+/* Cartes des membres en mode sombre */
+html.dark-mode .member-card {
+  background: var(--dark-bg-card) !important;
+  border: 1.5px solid var(--dark-border) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.dark-mode .member-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+  border-color: var(--dark-accent) !important;
+}
+
+html.dark-mode .avatar {
+  border-color: var(--dark-accent) !important;
+  background: var(--dark-bg-input) !important;
+}
+
+html.dark-mode .member-details h3 {
+  color: var(--dark-text) !important;
+}
+
+html.dark-mode .member-details p {
+  color: var(--dark-text-muted) !important;
+}
+
+/* Graphique de répartition des points en mode sombre */
+html.dark-mode .chart-container {
+  background-color: var(--dark-bg-card) !important;
+  border-color: var(--dark-border) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.dark-mode .chart-container h2 {
+  color: var(--dark-text) !important;
+}
+
+html.dark-mode .bar-chart {
+  background-color: var(--dark-bg-main) !important;
+}
+
+html.dark-mode .bar {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  filter: brightness(1.2) !important;
+}
+
+html.dark-mode .bar-label {
+  background-color: var(--dark-bg-input) !important;
+  color: var(--dark-text) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.dark-mode .bar-name {
+  color: var(--dark-text-muted) !important;
+}
+
+/* Tooltip en mode sombre */
+html.dark-mode .member-tooltip {
+  background-color: var(--dark-bg-card) !important;
+  border: 1px solid var(--dark-accent) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark-mode .member-tooltip h4 {
+  color: var(--dark-text) !important;
+  border-bottom: 1px solid var(--dark-border) !important;
+}
+
+html.dark-mode .tooltip-label {
+  color: var(--dark-accent) !important;
+}
+
+html.dark-mode .tooltip-detail {
+  color: var(--dark-text) !important;
+}
+
+/* Forcer le style sur tous les éléments avec des styles inline */
+html.dark-mode [style*="background"],
+html.dark-mode [style*="background-color"] {
+  background-color: var(--dark-bg-card) !important;
+}
+
+html.dark-mode [style*="color"] {
+  color: var(--dark-text) !important;
+}
+
+html.dark-mode [style*="border"] {
+  border-color: var(--dark-border) !important;
+} 

@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-image left">
-      <img src="@/assets/kitchen-left.jpg" alt="Cuisine design">
+      <img src="@/assets/kitchen-left.jpg" alt="Cuisine gauche" />
     </div>
     <div class="login-card">
       <h2>Bienvenue dans<br>MaCuisineConnectée</h2>
@@ -43,19 +43,24 @@
           <router-link to="/register" :class="{ 'disabled': loading }">S'inscrire</router-link>
         </p>
         <p class="register-link">
-            Espace Visiteurs – 
-            <router-link to="/visitors" :class="{ 'disabled': loading }">Y accéder</router-link>
-          </p>
+          Espace Visiteurs –
+          <router-link to="/explore" @click.prevent="activerModeVisiteur">Y accéder</router-link>
+
+        </p>
+
       </form>
     </div>
     <div class="login-image right">
-      <img src="@/assets/kitchen-right.jpg" alt="Plats cuisinés">
+      <img src="@/assets/kitchen-right.jpg" alt="Cuisine droite" />
     </div>
   </div>
 </template>
 
 <script>
 import authService from '../services/authService';
+import { useAuthStore } from '../stores/auth'
+import api from "../services/api";
+
 
 export default {
   name: 'LoginPage',
@@ -68,42 +73,73 @@ export default {
     };
   },
   methods: {
+
+    activerModeVisiteur() {
+      const auth = useAuthStore()
+      auth.setAsVisitor()
+      this.$router.push('/explore')
+    },
+
+
     async handleLogin() {
       if (this.loading) return;
-      
+
       this.loading = true;
       this.message = null;
 
       try {
         const response = await authService.login(this.email, this.password);
+        const authStore = useAuthStore(); // 🔥 ICI on initialise Pinia
+
         this.message = {
           type: 'success',
           text: 'Connexion réussie ! Redirection...'
         };
-        
+
+        // Stockage local
         localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.utilisateur));
-        
+        localStorage.setItem('user', JSON.stringify(response.user));
+
+        // 🔐 MàJ du store Pinia (indispensable pour ExploreApp.vue)
+        authStore.setAuth(response.user);
+
+        // Ajout de points à la connexion
+        try {
+          await api.post(`/users/${response.user._id}/points`, { amount: 0.25 });
+          authStore.points += 0.25; // met à jour le store local aussi
+          localStorage.setItem('points', authStore.points);
+        } catch (err) {
+          console.warn("Erreur lors de l'ajout de points à la connexion", err);
+        }
+
+
         setTimeout(() => {
-          if (response.utilisateur.role === 'admin') {
+          if (response.user.role === 'admin') {
             this.$router.push('/admin');
           } else {
-            this.$router.push('/login');
+            this.$router.push('/explore');
           }
         }, 1500);
 
       } catch (error) {
+        console.error('Erreur de connexion :', error);
         this.message = {
           type: 'error',
-          text: error.response?.data?.message || 'Email ou mot de passe incorrect'
+          text: error.response?.data?.message || "Erreur inconnue"
         };
+        this.$nextTick(() => {
+          const alert = document.querySelector('.alert-error');
+          if (alert) alert.scrollIntoView({ behavior: 'smooth' });
+        });
       } finally {
         this.loading = false;
       }
     }
+
   }
 };
 </script>
+
 
 <style scoped>
 .login-container {
@@ -117,27 +153,34 @@ export default {
 }
 
 .login-image {
-  height: 85vh;
-  width: 200px;
+  height: 580px;
+  width: 280px;
   overflow: hidden;
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(44, 80, 56, 0.10);
 }
-
 .login-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  
+  border-radius: 30px;
+}
+@media (max-width: 1100px) {
+  .login-image { display: none; }
 }
 
 .login-card {
   background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 38px 32px 32px 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(44, 80, 56, 0.13);
   width: 100%;
   max-width: 400px;
+  min-width: 320px;
 }
 
 h2 {

@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import AccueilAdmin from '../views/AccueilAdmin.vue'
-import Visitors from '@/views/Visitors.vue'
+import VisitorsView from '@/views/VisitorsView.vue'
 
 const routes = [
   {
@@ -16,8 +16,13 @@ const routes = [
   },
   {
     path: '/visitors',
-    name: 'VisitorsPage',
-    component: Visitors
+    component: VisitorsView,
+    children: [
+      {
+        path: '',
+        redirect: '/explore'
+      }
+    ]
   },
   {
     path: '/admin',
@@ -32,6 +37,131 @@ const routes = [
     path: '/register',
     name: 'RegisterPage',
     component: Register
+  },
+  {
+    path: '/validation',
+    name: 'Validation',
+    component: () => import('@/views/ValidationInscription.vue')
+  },
+  {
+    path: '/explore',
+    name: 'Explore',
+    component: () => import('@/views/ExploreApp.vue')
+  },
+  {
+    path: '/recettes',
+    name: 'Recettes',
+    component: () => import('@/views/RecettesView.vue')
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('@/views/ExploreApp.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('@/views/ProfileView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/objects/:id',
+    name: 'ObjectDetails',
+    component: () => import('@/views/ObjectDetails.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/level',
+        name: 'LevelView',
+      component: () => import('@/views/LevelView.vue'),
+      meta: { requiresAuth: false }
+  },
+  {
+    path: '/profile/:id',
+    name: 'OtherProfile',
+    component: () => import('@/views/OtherProfiles.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/objects/:id/control',
+    name: 'control-object',
+    component: () => import('@/views/ControlObjectView.vue')
+  },
+  {
+    path: '/manage/objects/new',
+    name: 'create-object',
+    component: () => import('@/views/CreateObjectView.vue'),
+    meta: { requiresRole: ['complexe', 'admin'] }
+  },
+  {
+    path: '/manage/objects',
+    name: 'objects-management',
+    component: () => import('@/views/ObjectsManagementView.vue'),
+    meta: { requiresRole: ['complexe', 'admin'] }
+  },
+  {
+    path: '/manage/objects/:id/edit',
+    name: 'EditObject',
+    component: () => import('@/views/EditObject.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/objects/:id/activity',
+    name: 'ObjectActivity',
+    component: () => import('@/views/ObjectActivityView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/recettes/new',
+    name: 'NewRecettes',
+    component: () => import('@/views/NewRecettes.vue')
+  },
+  {
+    path: '/recettes/:id',
+    name: 'RecetteDetails',
+    component: () => import('@/views/RecetteDetails.vue')
+  },
+  {
+    path: '/recettes/:id/edit',
+    name: 'EditRecette',
+    component: () => import('@/views/EditRecette.vue')
+  },
+  {
+    path: '/admin/users',
+    name: 'AdminUsers',
+    component: () => import('@/views/AdminUsers.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/history',
+    name: 'AdminHistory',
+    component: () => import('@/views/AdminHistory.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/families',
+    name: 'AdminFamilies',
+    component: () => import('@/views/AdminFamilies.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/user-points',
+    name: 'AdminUserPoints',
+    component: () => import('@/views/AdminUserPoints.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/reports',
+    name: 'AdminReports',
+    component: () => import('@/views/AdminReports.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/family-members',
+    name: 'FamilyMembers',
+    component: () => import('@/views/FamilyMembers.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 

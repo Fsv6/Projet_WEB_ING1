@@ -1,5 +1,5 @@
 const sequelize = require('../config/database');
-const ObjetConnecte = require('../models/objetConnecte')(sequelize);
+const ObjetConnecte = require('../models/ObjetConnecte')(sequelize);
 
 // Récupérer tous les objets connectés
 exports.getAllObjetsConnectes = async (req, res) => {
