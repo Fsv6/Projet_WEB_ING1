@@ -445,7 +445,59 @@ export default {
         doc.setTextColor(0, 0, 0);
         
         yPos += 15;
+
+        // Générer le diagramme circulaire
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 300;
+        canvas.height = 300;
+
+        const types = Object.keys(reportData.value.objects.byType);
+        const counts = Object.values(reportData.value.objects.byType);
+        const total = counts.reduce((a, b) => a + b, 0);
+
+        // Dessiner le diagramme avec légende dans chaque part
+        let startAngle = 0;
+        const colors = ['#4CAF50', '#8BC34A', '#CDDC39', '#FFC107', '#FF9800', '#FF5722'];
+        ctx.font = 'bold 13px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        types.forEach((type, index) => {
+          const percentage = (counts[index] / total) * 100;
+          const angle = (percentage / 100) * 2 * Math.PI;
+          const midAngle = startAngle + angle / 2;
+
+          // Dessiner la part
+          ctx.beginPath();
+          ctx.moveTo(150, 150);
+          ctx.arc(150, 150, 100, startAngle, startAngle + angle);
+          ctx.closePath();
+          ctx.fillStyle = colors[index % colors.length];
+          ctx.fill();
+          ctx.stroke();
+
+          // Placer la légende au centre de la part
+          const label = `${type} (${percentage.toFixed(1)}%)`;
+          const labelRadius = 70; // Rayon pour placer le texte
+          const x = 150 + labelRadius * Math.cos(midAngle);
+          const y = 150 + labelRadius * Math.sin(midAngle);
+          ctx.save();
+          ctx.fillStyle = '#222';
+          ctx.font = 'bold 12px Arial';
+          ctx.shadowColor = 'white';
+          ctx.shadowBlur = 2;
+          ctx.fillText(label, x, y);
+          ctx.restore();
+
+          startAngle += angle;
+        });
+
+        // Ajouter le diagramme au PDF
+        const imgData = canvas.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', 55, yPos, 100, 100);
+        yPos += 120;
         
+        // Ajouter le tableau des données
         const objectsData = Object.entries(reportData.value.objects.byType).map(([type, count]) => {
           const percentage = ((count / reportData.value.objects.total) * 100).toFixed(1);
           return [type, count.toString(), `${percentage}%`];
