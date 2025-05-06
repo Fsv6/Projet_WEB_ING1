@@ -9,10 +9,10 @@ import { useThemeStore } from './stores/theme'
 const app = createApp(App)
 const pinia = createPinia()
 
-// 🟢 Pinia d'abord !
+
 app.use(pinia)
 
-// 🔵 Puis le router
+
 app.use(router)
 
 // Initialiser le thème avant de monter l'application

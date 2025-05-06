@@ -162,8 +162,7 @@ const updateObject = async () => {
 
 <style scoped>
 .edit-container {
-  max-width: 700px;
-  margin: 0 auto;
+  max-width: 700px;margin: 0 auto;
   padding: 0 1rem;
 }
 

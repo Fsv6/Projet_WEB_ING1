@@ -29,15 +29,15 @@ const readyForUpgrade = computed(() =>
 )
 
 const upgradeLevel = async () => {
-  console.log('🟢 Click détecté – tentative de montée de niveau');
+  console.log('Click détecté – tentative de montée de niveau');
   console.log('auth.userId =', auth.userId);
 
   if (!readyForUpgrade.value || !nextLevel.value) return
   try {
-    console.log(`📤 Envoi POST vers /users/${auth.userId}/upgrade avec niveau = ${nextLevel.value}`);
+    console.log(`Envoi POST vers /users/${auth.userId}/upgrade avec niveau = ${nextLevel.value}`);
 
     const res = await api.post(`/users/${auth.userId}/upgrade`, { niveau: nextLevel.value })
-    console.log('✅ Réponse API :', res.data);
+    console.log('Réponse API :', res.data);
 
     auth.niveau = res.data.niveau
     auth.role = res.data.role
@@ -84,10 +84,10 @@ const upgradeLevel = async () => {
           <h3>{{ niveau.charAt(0).toUpperCase() + niveau.slice(1) }}</h3>
           <p><strong>Points requis :</strong> {{ seuils[niveau] || 0 }}</p>
           <ul>
-            <li v-if="niveau === 'débutant'">🔓 Accès aux objets connectés en lecture seule</li>
-            <li v-if="niveau === 'intermédiaire'">🧭 Consultation détaillée des services</li>
-            <li v-if="niveau === 'avancé'">⚙️ Contrôle des objets (on/off, réglages)</li>
-            <li v-if="niveau === 'expert'">🛠️ Accès à la gestion et personnalisation des objets/services</li>
+            <li v-if="niveau === 'débutant'">🔓 Accès aux objets connectés, et aux recettes en lecture seule</li>
+            <li v-if="niveau === 'intermédiaire'">🧭 Contrôle des objets de niveau de danger faible (cafetière, lave-vaiselle etc.)</li>
+            <li v-if="niveau === 'avancé'">⚙️ Contrôle de tous les objets </li>
+            <li v-if="niveau === 'expert'">🛠️ Accès à la gestion et personnalisation des objets/services, familles, utilisateurs. Génération de rapports et de statistiques. </li>
           </ul>
         </div>
       </div>
@@ -113,17 +113,24 @@ const upgradeLevel = async () => {
   background-color: #2c3e50;
   transition: width 0.5s ease;
 }
-button.btn {
+
+button {
+  margin: 1rem;
+  padding: 0.5rem 1rem;
   background-color: #2c3e50;
   color: white;
-  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
-button.btn:disabled {
+button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  color: white;
+  border: none;
+  border-radius: 4px;
 }
 .notice {
   color: #666;
@@ -149,6 +156,7 @@ button.btn:disabled {
 }
 .level-card ul {
   padding-left: 1rem;
+  list-style-type: none;
 }
 
 </style>

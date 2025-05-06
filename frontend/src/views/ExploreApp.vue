@@ -111,22 +111,7 @@ function controlObject(obj) {
         </div>
       </div>
 
-      <div class="daily-recipe-widget">
-        <h2>🍽️ Recette du jour</h2>
 
-        <div v-if="!isVisiteur">
-          <h3>Tajine aux légumes rôtis</h3>
-          <p>Une recette équilibrée pour tirer le meilleur de votre four connecté.</p>
-        </div>
-        <div v-else class="blur">
-          <p>🔒 Recette réservée aux utilisateurs inscrits</p>
-        </div>
-
-        <p v-if="isVisiteur" class="locked-info">
-          🔒 Créez un compte pour découvrir cette recette !
-          <router-link to="/register" class="link">S’inscrire</router-link>
-        </p>
-      </div>
     </div>
   </AppLayout>
 </template>
@@ -284,7 +269,15 @@ h1 {
   margin-right: auto;
   display: block;
 }
-
+button.btn {
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
 
 

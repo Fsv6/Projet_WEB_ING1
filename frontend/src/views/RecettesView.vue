@@ -111,25 +111,14 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.btn-view, .btn-new, .btn-edit {
-  background-color: #007bff;
+button {
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #2c3e50;
   color: white;
-  padding: 8px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  margin-top: 10px;
-  margin-right: 8px;
-  font-weight: bold;
-}
-
-.btn-edit {
-  background-color: #f0ad4e;
-}
-
-.btn-new-container {
-  text-align: right;
-  margin-bottom: 1rem;
 }
 
 .blur {

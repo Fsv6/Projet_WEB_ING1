@@ -47,13 +47,13 @@ export default {
 <style scoped>
 .layout {
   display: flex;
-  height: 100vh;
+  height: 95vh;
 }
 
 .layout-main {
   flex: 1;
+  margin-left: 250px;
   padding: 2rem;
-  overflow-y: auto;
 }
 
 .page-content {
@@ -70,7 +70,7 @@ export default {
   border: none;
   font-size: 2rem;
   padding: 1rem;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
@@ -102,6 +102,45 @@ export default {
 
   .sidebar.open {
     display: block;
+  }
+
+  .layout {
+    display: flex;
+    height: 95vh;
+  }
+
+  .layout-main {
+    flex: 1;
+    margin-left: 0px;
+    padding: 2rem;
+  }
+
+  .page-content {
+    flex: 1;
+    padding: 2rem;
+    margin-left: 0;
+    overflow-y: auto;
+  }
+
+  .burger-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    padding: 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  .visitor-banner {
+    background-color: #fef3c7;
+    color: #92400e;
+    padding: 10px 20px;
+    border-left: 5px solid #facc15;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    font-size: 0.95rem;
   }
 }
 </style>

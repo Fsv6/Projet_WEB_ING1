@@ -276,7 +276,6 @@ export default {
 
 <style scoped>
 .family-members-container {
-  padding: 1rem;
   max-width: 950px;
   margin: 0 auto;
   width: 100%;
@@ -711,10 +710,10 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, 
-    rgba(0, 0, 0, 0.4) 0%, 
-    rgba(0, 0, 0, 0.2) 40%, 
-    rgba(0, 0, 0, 0.1) 60%, 
+  background: linear-gradient(to bottom,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.2) 40%,
+    rgba(0, 0, 0, 0.1) 60%,
     rgba(0, 0, 0, 0.3) 100%
   );
   display: flex;

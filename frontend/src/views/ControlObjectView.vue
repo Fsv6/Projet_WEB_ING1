@@ -52,7 +52,7 @@ const applyChanges = async () => {
     });
     alert('✅ Modifications enregistrées avec succès !')
   } catch (error) {
-    console.error('❌ Erreur API PUT:', error)
+    console.error('Erreur API PUT:', error)
     alert('Erreur lors de la mise à jour de l\'objet.')
   }
 }
@@ -110,51 +110,87 @@ const applyChanges = async () => {
 </template>
 
 <style scoped>
+.control-object-page {
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+}
+
+.page-title {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.object-name {
+  font-size: 1.5rem;
+  color: #4a5568;
+  margin-bottom: 1.2rem;
+}
+
 .object-form {
-  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
+label {
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Appliquer box-sizing border-box pour tout */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Uniformiser la taille des inputs et selects */
 input, select {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  color: #333;
   margin-top: 5px;
 }
 
-.btn-apply {
-  padding: 10px 20px;
-  background-color: #4caf50;
+/* Eviter les bordures spécifiques pour les inputs de type number */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Style bouton */
+button.btn-apply {
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #2c3e50;
   color: white;
   border: none;
-  cursor: pointer;
-}
-</style>
-
-
-
-<style scoped>
-.object-form {
-  margin-top: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-input, select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-}
-.btn-apply {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
+  border-radius: 4px;
   cursor: pointer;
 }
 
+/* Responsivité */
+@media screen and (max-width: 768px) {
+  .control-object-page {
+    padding: 1rem;
+  }
+
+  .object-form {
+    padding: 1.5rem;
+  }
+}
 </style>

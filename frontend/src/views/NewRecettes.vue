@@ -157,6 +157,15 @@ select {
   border-radius: 6px;
   border: 1px solid #ccc;
   box-sizing: border-box;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #4caf50;
+  outline: none;
 }
 
 .input-group {
@@ -165,29 +174,68 @@ select {
   margin-top: 0.5rem;
 }
 
+.dynamic-list {
+  margin-top: 1rem;
+}
+
 .dynamic-list ul,
 .dynamic-list ol {
   margin-top: 1rem;
   padding-left: 1.5rem;
 }
 
-button {
-  background-color: #28a745;
-  color: white;
-  padding: 8px 14px;
-  border: none;
+.dynamic-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #ddd;
   border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background-color: #fafafa;
+  transition: transform 0.2s ease-in-out;
+}
+
+.dynamic-list li button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
   cursor: pointer;
 }
 
-button.btn-submit {
-  width: 100%;
-  margin-top: 2rem;
-  font-size: 1.1rem;
+.dynamic-list li button:hover {
+  background-color: #c0392b;
 }
 
-button[type="button"] {
-  background-color: #17a2b8;
+button {
+  padding: 0.8rem 1.5rem;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #34495e;
+}
+
+/* Animation sur l'ajout ou suppression d'un élément */
+.dynamic-list li.adding {
+  transform: scale(1.05);
+  background-color: #d1f7c4;
+}
+
+.dynamic-list li.removing {
+  transform: scale(0.95);
+  background-color: #f8d7da;
+}
+
+.dynamic-list li.removing button {
+  background-color: #c0392b;
 }
 </style>
 

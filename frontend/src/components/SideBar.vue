@@ -119,7 +119,8 @@ const navItems = computed(() => {
     { path: '/profile', label: 'Profil', icon: 'fas fa-user' },
     { path: '/explore', label: 'Explorer', icon: 'fas fa-search' },
     { path: '/recettes', label: 'Recettes', icon: 'fas fa-utensils' },
-    { path: '/level', label: 'Niveau', icon: 'fas fa-chart-line' }
+    { path: '/level', label: 'Niveau', icon: 'fas fa-chart-line' },
+    { path: '/family-members', label: 'Autres Membres de la Famille', icon: 'fas fa-users' }
   ]
 
   const complexe = [
@@ -137,7 +138,8 @@ const navItems = computed(() => {
       { path: '/profile', label: 'Profil', icon: 'fas fa-user' },
       { path: '/explore', label: 'Explorer', icon: 'fas fa-search' },
       { path: '/recettes', label: 'Recettes', icon: 'fas fa-utensils' },
-      { path: '/level', label: 'Niveau', icon: 'fas fa-chart-line' }
+      { path: '/level', label: 'Niveau', icon: 'fas fa-chart-line' },
+      { path: '/family-members', label: 'Autres Membres de la Famille', icon: 'fas fa-users' }
     ]
   }
 
@@ -151,11 +153,14 @@ const navItems = computed(() => {
   width: 250px;
   background-color: #1f2a36;
   color: white;
-  height: 100vh;
+  height: 99vh;
   padding: 1rem 0.7rem 1rem 0.7rem;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  position: fixed; /* Reste fixé même lors du scroll */
+
+
 }
 
 .sidebar-header {

@@ -89,18 +89,6 @@ const updatePassword = async () => {
 
 
       <div class="section">
-        <h3>🧾 Infos publiques</h3>
-        <p><strong>Pseudo :</strong> {{ user?.login }}</p>
-        <p><strong>Age :</strong> {{ user?.personne?.age || 'Non spécifié' }}</p>
-        <p><strong>Genre :</strong> {{ user?.personne?.genre || 'Non spécifié' }}</p>
-        <p><strong>Date de naissance :</strong> {{ user?.personne?.dateNaissance?.substring(0, 10) || 'Non spécifiée' }}</p>
-        <p><strong>Type de membre :</strong> {{ user?.personne?.typeMembre || 'Non précisé' }}</p>
-        <div class="section">
-          <h3>🔐 Infos privées</h3>
-          <p><strong>Nom :</strong> {{ user?.personne?.nom || 'Non renseigné' }}</p>
-          <p><strong>Prénom :</strong> {{ user?.personne?.prenom || 'Non renseigné' }}</p>
-        </div>
-
         <div class="section">
           <h3>🖼️ Photo de profil</h3>
 
@@ -113,6 +101,17 @@ const updatePassword = async () => {
           <input type="file" accept=".png, .jpeg, .jpg" @change="handlePhotoChange" />
           <img v-if="photoPreview" :src="photoPreview" alt="Preview" class="preview" />
           <button class="btn" @click="uploadPhoto">Mettre à jour la photo</button>
+        </div>
+        <h3>🧾 Infos publiques</h3>
+        <p><strong>Pseudo :</strong> {{ user?.login }}</p>
+        <p><strong>Age :</strong> {{ user?.personne?.age || 'Non spécifié' }}</p>
+        <p><strong>Genre :</strong> {{ user?.personne?.genre || 'Non spécifié' }}</p>
+        <p><strong>Date de naissance :</strong> {{ user?.personne?.dateNaissance?.substring(0, 10) || 'Non spécifiée' }}</p>
+        <p><strong>Type de membre :</strong> {{ user?.personne?.typeMembre || 'Non précisé' }}</p>
+        <div class="section">
+          <h3>🔐 Infos privées</h3>
+          <p><strong>Nom :</strong> {{ user?.personne?.nom || 'Non renseigné' }}</p>
+          <p><strong>Prénom :</strong> {{ user?.personne?.prenom || 'Non renseigné' }}</p>
         </div>
       </div>
 

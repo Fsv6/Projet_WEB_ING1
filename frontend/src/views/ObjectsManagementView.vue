@@ -211,7 +211,7 @@ const requestDeletion = async (obj) => {
 
     alert(`🔔 Demande de suppression envoyée pour : ${obj.nom}`)
   } catch (err) {
-    console.error('❌ Erreur envoi suppression :', err)
+    console.error('Erreur envoi suppression :', err)
     alert("Erreur lors de l'envoi de la demande.")
   }
 }
@@ -223,17 +223,8 @@ const requestDeletion = async (obj) => {
   padding: 20px;
 }
 
-.btn-toggle {
-  margin-bottom: 20px;
-  padding: 8px 14px;
-  background-color: #2e8b57;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
 .form-ajout {
-  max-width: 600px;
+  max-width: 100%;
   margin-bottom: 30px;
 }
 
@@ -243,22 +234,24 @@ const requestDeletion = async (obj) => {
 
 input, textarea, select {
   width: 100%;
-  padding: 8px;
+  padding: 8px 14px;
   margin-top: 5px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
 
 .checkbox-group label {
   display: block;
   margin-top: 10px;
 }
 
-.btn-submit {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
 
 .objects-table {
   width: 100%;
@@ -311,5 +304,15 @@ input, textarea, select {
 
 .btn-activity:hover {
   background-color: #3a6a49;
+}
+
+button {
+  margin: 0.2rem;
+  padding: 0.5rem 1rem;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>
